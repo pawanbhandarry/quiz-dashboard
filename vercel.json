@@ -40,11 +40,5 @@
             "src": "/questions",
             "dest": "/"
         }
-    ],
-    "rewrites": [
-        {
-            "source": "/(.*)",
-            "destination": "/index.html"
-        }
     ]
 }
