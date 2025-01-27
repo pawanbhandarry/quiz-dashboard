@@ -10,6 +10,9 @@ class CustomersScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const TSiteTemplate(desktop: CustomersDesktopScreen(), tablet: CustomersTabletScreen(), mobile: CustomersMobileScreen());
+    return const TSiteTemplate(
+        desktop: CustomersDesktopScreen(),
+        tablet: CustomersTabletScreen(),
+        mobile: CustomersMobileScreen());
   }
 }

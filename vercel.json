@@ -1,44 +1,8 @@
 {
-    "routes": [
+    "rewrites": [
         {
-            "src": "/login",
-            "dest": "/"
-        },
-        {
-            "src": "/dashboard",
-            "dest": "/"
-        },
-        {
-            "src": "/categories",
-            "dest": "/"
-        },
-        {
-            "src": "/createCategory",
-            "dest": "/"
-        },
-        {
-            "src": "/editCategory",
-            "dest": "/"
-        },
-        {
-            "src": "/users",
-            "dest": "/"
-        },
-        {
-            "src": "/quizes",
-            "dest": "/"
-        },
-        {
-            "src": "/createQuiz",
-            "dest": "/"
-        },
-        {
-            "src": "/editQuiz",
-            "dest": "/"
-        },
-        {
-            "src": "/questions",
-            "dest": "/"
+            "source": "/(.*)",
+            "destination": "/index.html"
         }
     ]
 }
