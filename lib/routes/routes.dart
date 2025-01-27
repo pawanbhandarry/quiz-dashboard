@@ -9,7 +9,7 @@ class TRoutes {
   static const createCategory = '/createCategory';
   static const editCategory = '/editCategory';
   static const users = '/users';
-  static const analytics = '/analytics';
+  static const reports = '/reports';
   static const activationCodes = '/activationCodes';
   static const quizes = '/quizes';
   static const createQuiz = '/createQuiz';
@@ -34,7 +34,7 @@ class TRoutes {
     users,
     questions,
     quizes,
-    analytics,
+    reports,
     settings,
     profile,
   ];

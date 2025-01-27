@@ -86,9 +86,9 @@ class TSidebar extends StatelessWidget {
                         icon: Iconsax.code,
                         itemName: 'Activation Codes'),
                     const TMenuItem(
-                        route: TRoutes.analytics,
+                        route: TRoutes.reports,
                         icon: Iconsax.chart,
-                        itemName: 'Analytics'),
+                        itemName: 'Reports'),
 
                     const SizedBox(height: TSizes.spaceBtwItems),
                     Text('OTHER',

@@ -3,6 +3,7 @@ import 'package:dashboard/features/question/screens/add_questions/add_question.d
 import 'package:dashboard/features/question/screens/all_questions/questions.dart';
 import 'package:dashboard/features/question/screens/upload_questions/upload_question.dart';
 import 'package:dashboard/features/quizes/screens/alll_quizes/quizes.dart';
+import 'package:dashboard/features/reports/reports.dart';
 
 import 'package:dashboard/features/setting/screens/profile/profile.dart';
 
@@ -77,6 +78,11 @@ class TAppRoute {
     GetPage(
         name: TRoutes.uploadQuestions,
         page: () => const UploadQuestionScreen(),
+        middlewares: [TRouteMiddleware()]),
+//Reports
+    GetPage(
+        name: TRoutes.reports,
+        page: () => const RepostsScreen(),
         middlewares: [TRouteMiddleware()]),
     // Users
     GetPage(
