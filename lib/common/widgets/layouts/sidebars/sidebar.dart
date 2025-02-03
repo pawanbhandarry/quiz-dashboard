@@ -28,6 +28,7 @@ class TSidebar extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const SizedBox(height: TSizes.spaceBtwSections),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
