@@ -29,7 +29,6 @@ class QuizRepository extends GetxController {
             'category_id': quiz.categoryId,
             'title': quiz.title,
             'description': quiz.description,
-            'category_name': quiz.categoryName,
             'timer': quiz.timer,
             'shareable_code': quiz.shareableCode,
             'created_at': DateTime.now().toIso8601String(),
@@ -42,33 +41,32 @@ class QuizRepository extends GetxController {
         throw 'Failed to create quiz: No response';
       }
 
+      // Fetch and increment noof_quizes
+      await _supabase.rpc('increment_category_quizzes',
+          params: {'category_id': quiz.categoryId});
+
       return response['id'].toString();
     } on PostgrestException catch (e) {
-      print(
-          'Postgrest Error: ${e.message}, Code: ${e.code}, Details: ${e.details}');
-      if (e.code == '42501') {
-        throw 'Permission denied. Please check if you are properly authenticated.';
-      }
       throw 'Database error: ${e.message}';
     } catch (e) {
-      print('Unexpected error: $e');
       throw 'Something went wrong. Please try again';
     }
   }
 
-  // Get all quizzes
+  // Get all quizzes with category names
   Future<List<QuizModel>> getAllQuizzes() async {
     try {
       _checkAuth();
 
-      final List<dynamic> response = await _supabase.from(_tableName).select();
+      final List<dynamic> response = await _supabase
+          .from(_tableName)
+          .select('*, categories(name)')
+          .order('created_at', ascending: false);
 
       return response.map((quiz) => QuizModel.fromJson(quiz)).toList();
     } on PostgrestException catch (e) {
-      print('Postgrest Error: ${e.message}');
       throw 'Database error: ${e.message}';
     } catch (e) {
-      print('Unexpected error: $e');
       throw 'Something went wrong. Please try again';
     }
   }
@@ -80,15 +78,13 @@ class QuizRepository extends GetxController {
 
       final List<dynamic> response = await _supabase
           .from(_tableName)
-          .select()
+          .select('*, categories(name)')
           .eq('category_id', categoryId);
 
       return response.map((quiz) => QuizModel.fromJson(quiz)).toList();
     } on PostgrestException catch (e) {
-      print('Postgrest Error: ${e.message}');
       throw 'Database error: ${e.message}';
     } catch (e) {
-      print('Unexpected error: $e');
       throw 'Something went wrong. Please try again';
     }
   }
@@ -115,11 +111,11 @@ class QuizRepository extends GetxController {
     }
   }
 
-  // Delete a quiz
   Future<void> deleteQuiz(String quizId) async {
     try {
       _checkAuth();
 
+      // Simply delete the quiz, no need to update category count manually
       await _supabase.from(_tableName).delete().eq('id', quizId);
     } on PostgrestException catch (e) {
       print('Postgrest Error: ${e.message}');
@@ -127,6 +123,17 @@ class QuizRepository extends GetxController {
     } catch (e) {
       print('Unexpected error: $e');
       throw 'Something went wrong. Please try again';
+    }
+  }
+
+  Future<QuizModel> getQuizById(String id) async {
+    try {
+      final response =
+          await _supabase.from('quizes').select().eq('id', id).single();
+
+      return QuizModel.fromJson(response);
+    } catch (e) {
+      throw 'Error fetching quiz: $e';
     }
   }
 }

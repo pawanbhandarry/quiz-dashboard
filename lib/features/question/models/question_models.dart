@@ -3,12 +3,14 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class QuestionModel {
   String id;
   String question;
-  Map<String, String> options; // A, B, C, D
+  Map<String, String> options;
   String correctAnswer;
   String explanation;
   String? imageUrl;
   String quizId;
-  String quizName;
+  String categoryId;
+  String? quizName; // Will be fetched dynamically
+  String? categoryName; // Will be fetched dynamically
 
   QuestionModel({
     required this.id,
@@ -17,11 +19,12 @@ class QuestionModel {
     required this.correctAnswer,
     required this.explanation,
     required this.quizId,
-    required this.quizName,
+    required this.categoryId,
+    this.quizName,
+    this.categoryName,
     this.imageUrl,
   });
 
-  // Convert from a map (e.g., from database data) to a QuestionModel object
   factory QuestionModel.fromMap(Map<String, dynamic> data) {
     return QuestionModel(
       id: data['id'],
@@ -36,11 +39,12 @@ class QuestionModel {
       explanation: data['explanation'],
       imageUrl: data['image_url'],
       quizId: data['quiz_id'],
-      quizName: data['quiz_name'],
+      categoryId: data['category_id'],
+      quizName: data['quiz_name'], // Dynamically fetched
+      categoryName: data['category_name'], // Dynamically fetched
     );
   }
 
-  // Convert a QuestionModel object to a map (for saving to Supabase)
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -53,7 +57,7 @@ class QuestionModel {
       'explanation': explanation,
       'image_url': imageUrl,
       'quiz_id': quizId,
-      'quiz_name': quizName,
+      'category_id': categoryId,
     };
   }
 }

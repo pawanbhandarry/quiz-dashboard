@@ -14,7 +14,7 @@ class ReportsDesktopScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(ScoreController());
+    final controller = Get.put(QuizScoreController());
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
@@ -24,12 +24,12 @@ class ReportsDesktopScreen extends StatelessWidget {
             children: [
               // Breadcrumbs
               const TBreadcrumbsWithHeading(
-                  heading: 'Quizes', breadcrumbItems: ['Quizes']),
+                  heading: 'Reports',
+                  breadcrumbItems: ['Reports']), // Breadcrumbs
               const SizedBox(height: TSizes.spaceBtwSections),
 
               // Table Body
               Obx(() {
-                // Show Loader
                 if (controller.isLoading.value) return const TLoaderAnimation();
 
                 return const TRoundedContainer(
@@ -38,7 +38,6 @@ class ReportsDesktopScreen extends StatelessWidget {
                       // Table Header
                       ReportsTableHeader(),
                       SizedBox(height: TSizes.spaceBtwItems),
-
                       // Table
                       ScoreTable(),
                     ],

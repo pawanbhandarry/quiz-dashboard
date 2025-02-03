@@ -82,7 +82,7 @@ class UploadQuestionController extends GetxController {
             correctAnswer: row[5].toString(),
             explanation: row[6].toString(),
             quizId: selectedQuiz.value.id,
-            quizName: selectedQuiz.value.title,
+            categoryId: selectedQuiz.value.categoryId,
             imageUrl: row.length > 7 ? row[7].toString() : null,
           );
 

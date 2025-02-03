@@ -32,6 +32,7 @@ class QuestionTable extends StatelessWidget {
                 label: const Text('Question'),
                 onSort: (columnIndex, ascending) =>
                     controller.sortByName(columnIndex, ascending)),
+            const DataColumn2(label: Text('Category')),
             const DataColumn2(label: Text('Quiz')),
             const DataColumn2(label: Text('Correct Answer')),
             const DataColumn2(label: Text('Action'), fixedWidth: 100),

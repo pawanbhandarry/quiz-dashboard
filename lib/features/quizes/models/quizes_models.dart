@@ -5,22 +5,22 @@ class QuizModel {
   String categoryId; // Links the quiz to a specific category
   String title;
   String description;
-  String categoryName; // Category title
   int timer; // Timer in minutes (e.g., 20, 30)
   String shareableCode;
   DateTime? createdAt;
   DateTime? updatedAt;
+  String? categoryName; // Fetched from the categories table
 
   QuizModel({
     required this.id,
     required this.categoryId,
     required this.title,
     required this.description,
-    required this.categoryName,
     this.timer = 0, // Default timer value is 0
     required this.shareableCode,
     this.createdAt,
     this.updatedAt,
+    this.categoryName, // Now nullable since it's fetched dynamically
   });
 
   /// Getters for formatted dates
@@ -33,7 +33,6 @@ class QuizModel {
         categoryId: '',
         title: '',
         description: '',
-        categoryName: '',
         timer: 0,
         shareableCode: '',
       );
@@ -45,7 +44,6 @@ class QuizModel {
       'category_id': categoryId,
       'title': title,
       'description': description,
-      'category_name': categoryName,
       'timer': timer,
       'shareable_code': shareableCode,
       'created_at': createdAt?.toIso8601String(),
@@ -60,7 +58,6 @@ class QuizModel {
       categoryId: json['category_id'] ?? '',
       title: json['title'] ?? '',
       description: json['description'] ?? '',
-      categoryName: json['category_name'] ?? '',
       timer: json['timer'] ?? 0,
       shareableCode: json['shareable_code'] ?? '',
       createdAt: json['created_at'] != null
@@ -69,6 +66,9 @@ class QuizModel {
       updatedAt: json['updated_at'] != null
           ? DateTime.parse(json['updated_at'])
           : null,
+      categoryName: json['categories'] != null
+          ? json['categories']['name']
+          : null, // Fetching category name dynamically
     );
   }
 }

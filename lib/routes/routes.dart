@@ -10,7 +10,7 @@ class TRoutes {
   static const editCategory = '/editCategory';
   static const users = '/users';
   static const reports = '/reports';
-  static const activationCodes = '/activationCodes';
+
   static const quizes = '/quizes';
   static const createQuiz = '/createQuiz';
   static const editQuiz = '/editQuiz';
@@ -20,9 +20,12 @@ class TRoutes {
   static const editQuestion = '/editQuestion';
   static const uploadQuestions = '/uploadQuestions';
 
-  static const createCustomer = '/createCustomer';
-  static const customerDetails = '/customerDetails';
+  static const createUser = '/createUser';
+  static const userDetails = '/userDetails';
 
+  static const activationCodes = '/activationCodes';
+  static const createActivationCode = '/createActivationCode';
+  static const editActivationCode = '/editActivationCode';
   static const settings = '/settings';
   static const profile = '/profile';
 
@@ -35,6 +38,7 @@ class TRoutes {
     questions,
     quizes,
     reports,
+    activationCodes,
     settings,
     profile,
   ];

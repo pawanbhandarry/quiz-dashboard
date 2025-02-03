@@ -1,3 +1,4 @@
+import 'package:dashboard/data/repositories/admin/admin_repository.dart';
 import 'package:dashboard/routes/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -13,7 +14,7 @@ import '../../../data/repositories/user/user_repository.dart';
 import '../../../utils/constants/enums.dart';
 import '../../../utils/constants/text_strings.dart';
 import '../../setting/controllers/admin_controller.dart';
-import '../../setting/models/user_model.dart';
+import '../../setting/models/admin_model.dart';
 
 class LoginController extends GetxController {
   static LoginController get instance => Get.find();
@@ -138,9 +139,9 @@ class LoginController extends GetxController {
       }
 
       // Create admin record in Supabase
-      final userRepository = Get.put(UserRepository());
+      final userRepository = Get.put(AdminRepository());
       await userRepository.createUser(
-        UserModel(
+        AdminModel(
           id: response.user!.id,
           firstName: 'App',
           lastName: 'Admin',
@@ -166,10 +167,10 @@ class LoginController extends GetxController {
     }
   }
 
-  Future<UserModel> fetchUserInformation() async {
+  Future<AdminModel> fetchUserInformation() async {
     // Fetch user details and assign to AdminController
     final controller = AdminController.instance;
-    UserModel user;
+    AdminModel user;
     if (controller.user.value.id == null || controller.user.value.id!.isEmpty) {
       user = await AdminController.instance.fetchUserDetails();
     } else {

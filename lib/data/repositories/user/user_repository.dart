@@ -2,10 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../../features/setting/models/user_model.dart';
+import '../../../features/user/models/user_models.dart';
 import '../../../utils/exceptions/supabase_exceptions.dart';
 import '../../../utils/exceptions/format_exceptions.dart';
-import '../../../utils/exceptions/platform_exceptions.dart';
 import '../authentication/authentication_repository.dart';
 
 /// Repository class for user-related operations.
@@ -29,11 +28,28 @@ class UserRepository extends GetxController {
   /// Function to fetch all users except admins
   Future<List<UserModel>> getAllUsers() async {
     try {
+      final response =
+          await _supabase.from('users').select().order('first_name');
+
+      return response.map((doc) => UserModel.fromJson(doc)).toList();
+    } on PostgrestException catch (e) {
+      throw TSupabaseException(e.message).message;
+    } on FormatException catch (_) {
+      throw const TFormatException();
+    } catch (e) {
+      if (kDebugMode) print('Something Went Wrong: $e');
+      throw 'Something Went Wrong: $e';
+    }
+  }
+
+  //fetch top users
+  Future<List<UserModel>> getTopUsers({int limit = 10}) async {
+    try {
       final response = await _supabase
           .from('users')
           .select()
-          .neq('Role', 'admin')
-          .order('FirstName');
+          .order('score', ascending: false) // Order by score (Descending)
+          .limit(limit); // Get top 10 users
 
       return response.map((doc) => UserModel.fromJson(doc)).toList();
     } on PostgrestException catch (e) {
@@ -51,30 +67,6 @@ class UserRepository extends GetxController {
     try {
       final response =
           await _supabase.from('users').select().eq('id', id).single();
-
-      if (response != null) {
-        return UserModel.fromJson(response);
-      } else {
-        return UserModel.empty();
-      }
-    } on PostgrestException catch (e) {
-      throw TSupabaseException(e.message).message;
-    } on FormatException catch (_) {
-      throw const TFormatException();
-    } catch (e) {
-      if (kDebugMode) print('Something Went Wrong: $e');
-      throw 'Something Went Wrong: $e';
-    }
-  }
-
-  /// Function to fetch admin details
-  Future<UserModel> fetchAdminDetails() async {
-    try {
-      final response = await _supabase
-          .from('admins')
-          .select()
-          .eq('id', AuthenticationRepository.instance.authUser!.id)
-          .single();
 
       if (response != null) {
         return UserModel.fromJson(response);
@@ -123,6 +115,21 @@ class UserRepository extends GetxController {
     }
   }
 
+// Change Status
+  Future<void> toggleUserStatus(String userId, String currentStatus) async {
+    try {
+      String newStatus = currentStatus == 'active' ? 'inactive' : 'active';
+
+      await _supabase
+          .from('users')
+          .update({'status': newStatus}).eq('id', userId);
+    } on PostgrestException catch (e) {
+      throw TSupabaseException(e.message).message;
+    } catch (e) {
+      throw 'Something went wrong. Please try again';
+    }
+  }
+
   /// Delete User Data
   Future<void> deleteUser(String id) async {
     try {
@@ -131,6 +138,22 @@ class UserRepository extends GetxController {
       throw TSupabaseException(e.message).message;
     } catch (e) {
       throw 'Something went wrong. Please try again';
+    }
+  }
+
+  // Add this method
+  Future<List<UserModel>> getUsersByEmails(List<String> emails) async {
+    try {
+      if (emails.isEmpty) return [];
+
+      final response =
+          await _supabase.from('users').select().contains('email', emails);
+
+      return (response as List)
+          .map((user) => UserModel.fromJson(user))
+          .toList();
+    } catch (e) {
+      throw 'Error fetching users by emails: $e';
     }
   }
 }

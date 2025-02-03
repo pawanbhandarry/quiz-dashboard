@@ -129,7 +129,7 @@ class EditQuestionController extends GetxController {
         correctAnswer: correctAnswer.value,
         explanation: explanationController.text.trim(),
         quizId: selectedQuiz.value.id,
-        quizName: selectedQuiz.value.title,
+        categoryId: selectedQuiz.value.categoryId,
         imageUrl: imageUrlController.text.trim().isNotEmpty
             ? imageUrlController.text.trim()
             : null,

@@ -136,4 +136,9 @@ class THelperFunctions {
     }
     return wrappedList;
   }
+
+  static String getDayOfWeek(DateTime date) {
+    const List<String> days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    return days[date.weekday - 1]; // DateTime.weekday (1 = Monday, 7 = Sunday)
+  }
 }

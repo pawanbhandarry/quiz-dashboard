@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../../features/setting/models/user_model.dart';
+import '../../../features/setting/models/admin_model.dart';
 import '../../../utils/exceptions/supabase_exceptions.dart';
 import '../../../utils/exceptions/format_exceptions.dart';
 import '../../../utils/exceptions/platform_exceptions.dart';
@@ -15,7 +15,7 @@ class AdminRepository extends GetxController {
   final SupabaseClient _supabase = Supabase.instance.client;
 
   /// Function to save user data to Supabase.
-  Future<void> createUser(UserModel user) async {
+  Future<void> createUser(AdminModel user) async {
     try {
       print('Inserting user: ${user.toJson()}');
       final response = await _supabase.from('admins').insert(user.toJson());
@@ -27,7 +27,7 @@ class AdminRepository extends GetxController {
   }
 
   /// Function to fetch all admins except admins
-  Future<List<UserModel>> getAllUsers() async {
+  Future<List<AdminModel>> getAllUsers() async {
     try {
       final response = await _supabase
           .from('admins')
@@ -35,7 +35,7 @@ class AdminRepository extends GetxController {
           .neq('Role', 'admin')
           .order('FirstName');
 
-      return response.map((doc) => UserModel.fromJson(doc)).toList();
+      return response.map((doc) => AdminModel.fromJson(doc)).toList();
     } on PostgrestException catch (e) {
       throw TSupabaseException(e.message).message;
     } on FormatException catch (_) {
@@ -47,15 +47,15 @@ class AdminRepository extends GetxController {
   }
 
   /// Function to fetch user details based on user ID.
-  Future<UserModel> fetchUserDetails(String id) async {
+  Future<AdminModel> fetchUserDetails(String id) async {
     try {
       final response =
           await _supabase.from('admins').select().eq('id', id).single();
 
       if (response != null) {
-        return UserModel.fromJson(response);
+        return AdminModel.fromJson(response);
       } else {
-        return UserModel.empty();
+        return AdminModel.empty();
       }
     } on PostgrestException catch (e) {
       throw TSupabaseException(e.message).message;
@@ -68,7 +68,7 @@ class AdminRepository extends GetxController {
   }
 
   /// Function to fetch admin details
-  Future<UserModel> fetchAdminDetails() async {
+  Future<AdminModel> fetchAdminDetails() async {
     try {
       final response = await _supabase
           .from('admins')
@@ -77,9 +77,9 @@ class AdminRepository extends GetxController {
           .single();
 
       if (response != null) {
-        return UserModel.fromJson(response);
+        return AdminModel.fromJson(response);
       } else {
-        return UserModel.empty();
+        return AdminModel.empty();
       }
     } on PostgrestException catch (e) {
       throw TSupabaseException(e.message).message;
@@ -92,7 +92,7 @@ class AdminRepository extends GetxController {
   }
 
   /// Function to update user data in Supabase
-  Future<void> updateUserDetails(UserModel updatedUser) async {
+  Future<void> updateUserDetails(AdminModel updatedUser) async {
     try {
       await _supabase
           .from('admins')

@@ -29,19 +29,18 @@ class TSidebar extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  TCircularImage(
-                    width: 60,
-                    height: 60,
-                    padding: 0,
-                    margin: TSizes.sm,
-                    backgroundColor: Colors.transparent,
-                    imageType: ImageType.asset,
-                    image: TImages.darkAppLogo,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: TSizes.md),
+                    child: Icon(
+                      Iconsax.book_square5,
+                      size: 60,
+                    ),
                   ),
                   Expanded(
                     child: Text(
-                      'Quiz Admin',
+                      'Quiz Master',
                       style: Theme.of(context).textTheme.headlineLarge,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -83,7 +82,7 @@ class TSidebar extends StatelessWidget {
                         itemName: 'Questions'),
                     const TMenuItem(
                         route: TRoutes.activationCodes,
-                        icon: Iconsax.code,
+                        icon: Iconsax.key,
                         itemName: 'Activation Codes'),
                     const TMenuItem(
                         route: TRoutes.reports,

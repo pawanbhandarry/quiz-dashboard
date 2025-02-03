@@ -1,11 +1,9 @@
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
 import '../../../features/question/models/question_models.dart';
 
 class QuestionRepository extends GetxController {
   static QuestionRepository get instance => Get.find();
-
   final SupabaseClient _supabase = Supabase.instance.client;
   static const String _tableName = 'questions';
 
@@ -32,7 +30,7 @@ class QuestionRepository extends GetxController {
             'explanation': question.explanation,
             'image_url': question.imageUrl,
             'quiz_id': question.quizId,
-            'quiz_name': question.quizName,
+            'category_id': question.categoryId,
           })
           .select()
           .single();
@@ -55,11 +53,31 @@ class QuestionRepository extends GetxController {
     try {
       _checkAuth();
 
-      final List<dynamic> response = await _supabase.from(_tableName).select();
+      final List<dynamic> response = await _supabase.from(_tableName).select('''
+          id, question, option_a, option_b, option_c, option_d, correct_answer,
+          explanation, image_url, quiz_id, category_id,
+          quizes(title), categories(name)
+        ''');
 
-      return response
-          .map((question) => QuestionModel.fromMap(question))
-          .toList();
+      return response.map((question) {
+        return QuestionModel(
+          id: question['id'],
+          question: question['question'],
+          options: {
+            'A': question['option_a'],
+            'B': question['option_b'],
+            'C': question['option_c'],
+            'D': question['option_d'],
+          },
+          correctAnswer: question['correct_answer'],
+          explanation: question['explanation'],
+          imageUrl: question['image_url'],
+          quizId: question['quiz_id'],
+          categoryId: question['category_id'],
+          quizName: question['quizes']?['title'], // Fetch dynamically
+          categoryName: question['categories']?['name'], // Fetch dynamically
+        );
+      }).toList();
     } on PostgrestException catch (e) {
       print('Postgrest Error: ${e.message}');
       throw 'Database error: ${e.message}';
@@ -73,12 +91,31 @@ class QuestionRepository extends GetxController {
     try {
       _checkAuth();
 
-      final List<dynamic> response =
-          await _supabase.from(_tableName).select().eq('quiz_id', quizId);
+      final List<dynamic> response = await _supabase.from(_tableName).select('''
+          id, question, option_a, option_b, option_c, option_d, correct_answer,
+          explanation, image_url, quiz_id, category_id,
+          quizes(title), categories(name)
+        ''').eq('quiz_id', quizId);
 
-      return response
-          .map((question) => QuestionModel.fromMap(question))
-          .toList();
+      return response.map((question) {
+        return QuestionModel(
+          id: question['id'],
+          question: question['question'],
+          options: {
+            'A': question['option_a'],
+            'B': question['option_b'],
+            'C': question['option_c'],
+            'D': question['option_d'],
+          },
+          correctAnswer: question['correct_answer'],
+          explanation: question['explanation'],
+          imageUrl: question['image_url'],
+          quizId: question['quiz_id'],
+          categoryId: question['category_id'],
+          quizName: question['quizes']?['title'],
+          categoryName: question['categories']?['name'],
+        );
+      }).toList();
     } on PostgrestException catch (e) {
       print('Postgrest Error: ${e.message}');
       throw 'Database error: ${e.message}';

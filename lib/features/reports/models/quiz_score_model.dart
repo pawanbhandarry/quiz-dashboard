@@ -1,63 +1,77 @@
-import 'package:intl/intl.dart';
+import '../../../utils/formatters/formatter.dart';
 
 class QuizScoreModel {
-  final String id;
-  final String userId;
-  final String quizId;
-  final int totalScore;
-  final int maximumScore;
-  final DateTime createdAt;
-  final String userName;
-  final String quizTitle;
-  final String quizCategoryId;
-  final String quizCategoryName;
+  String id;
+  String userId;
+  String quizId;
+  String categoryId;
+  int score;
+  int totalScore;
+  DateTime? createdAt;
+  DateTime? updatedAt;
+
+  // Additional fields from related tables
+  String? userName;
+  String? quizTitle;
+  String? categoryName;
 
   QuizScoreModel({
-    this.id = '',
+    required this.id,
     required this.userId,
     required this.quizId,
-    required this.totalScore,
-    required this.maximumScore,
-    DateTime? createdAt,
-    required this.userName,
-    required this.quizTitle,
-    required this.quizCategoryId,
-    required this.quizCategoryName,
-  }) : createdAt = createdAt ?? DateTime.now();
+    required this.categoryId,
+    this.totalScore = 0,
+    this.score = 0,
+    this.createdAt,
+    this.updatedAt,
+    this.userName,
+    this.quizTitle,
+    this.categoryName,
+  });
 
-  // Calculated property for score percentage
-  double get scorePercentage =>
-      maximumScore > 0 ? (totalScore / maximumScore) * 100 : 0;
+  /// Getters for formatted dates
+  String get formattedDate => TFormatter.formatDate(createdAt);
+  String get formattedUpdatedAtDate => TFormatter.formatDate(updatedAt);
 
-  // Formatted date for display
-  String get formattedDate => DateFormat('dd MMM yyyy HH:mm').format(createdAt);
-
-  // From JSON constructor
-  factory QuizScoreModel.fromJson(Map<String, dynamic> json) {
-    return QuizScoreModel(
-      id: json['id']?.toString() ?? '',
-      userId: json['user_id']?.toString() ?? '',
-      quizId: json['quiz_id']?.toString() ?? '',
-      totalScore: int.tryParse(json['total_score']?.toString() ?? '0') ?? 0,
-      maximumScore: int.tryParse(json['maximum_score']?.toString() ?? '0') ?? 0,
-      createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'])
-          : DateTime.now(),
-      userName: json['user']?['name'],
-      quizCategoryName: json['quizes']?['category_name'],
-      quizTitle: json['quizzes']?['title'],
-      quizCategoryId: json['quizzes']?['category_id'],
-    );
-  }
-
-  // To JSON method
+  /// Convert model to JSON for Supabase
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'user_id': userId,
       'quiz_id': quizId,
+      'category_id': categoryId,
+      'score': score,
       'total_score': totalScore,
-      'created_at': createdAt.toIso8601String(),
+      'created_at': createdAt?.toIso8601String(),
+      'updated_at': DateTime.now().toIso8601String(),
     };
+  }
+
+  /// Factory constructor to create a QuizScoreModel from Supabase JSON
+  factory QuizScoreModel.fromJson(Map<String, dynamic> json) {
+    return QuizScoreModel(
+      id: json['id'] ?? '',
+      userId: json['user_id'] ?? '',
+      quizId: json['quiz_id'] ?? '',
+      categoryId: json['category_id'] ?? '',
+      score: json['score'] ?? 0,
+      totalScore: json['total_score'] ?? 0,
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'])
+          : null,
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'])
+          : null,
+      userName: json['users'] != null && json['users']['first_name'] != null
+          ? "${json['users']['first_name']} ${json['users']['last_name']}"
+          : null,
+      quizTitle: json['quizes'] != null && json['quizes']['title'] != null
+          ? json['quizes']['title']
+          : null, // Add null check here
+      categoryName:
+          json['categories'] != null && json['categories']['name'] != null
+              ? json['categories']['name']
+              : null, // Add null check here
+    );
   }
 }

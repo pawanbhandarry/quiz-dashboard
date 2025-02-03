@@ -1,110 +1,149 @@
+import 'package:dashboard/features/reports/models/quiz_score_model.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../../features/reports/models/quiz_score_model.dart';
 import '../../../utils/exceptions/supabase_exceptions.dart';
+import '../../../utils/helpers/helper_functions.dart';
 
-class QuizScoreRepository extends GetxController {
+class QuizScoreRepository {
   static QuizScoreRepository get instance => Get.find();
 
   final SupabaseClient _supabase = Supabase.instance.client;
-  static const String _tableName = 'quiz_scores';
 
-  // Helper method to check authentication
-  void _checkAuth() {
-    final session = _supabase.auth.currentSession;
-    if (session == null) {
-      throw 'User not authenticated';
-    }
+  /// Get scores of a specific quiz
+  Future<List<QuizScoreModel>> getQuizScoresByQuiz(String quizId) async {
+    print('Fetching scores for quiz: $quizId');
+    final response = await _supabase
+        .from('quiz_scores')
+        .select(
+            '*, users(first_name,last_name), quizes(title), categories(name)')
+        .eq('quiz_id', quizId);
+    print('response: $response');
+
+    return response
+        .map((quizScore) => QuizScoreModel.fromJson(quizScore))
+        .toList();
   }
 
-  // Save a new quiz score
-  Future<QuizScoreModel> saveQuizScore(QuizScoreModel score) async {
-    try {
-      _checkAuth();
+  /// Get scores by category
+  Future<List<QuizScoreModel>> getQuizScoresByCategory(
+      String categoryId) async {
+    print('categoryId: $categoryId');
+    final response = await _supabase
+        .from('quiz_scores')
+        .select(
+            '*, users(first_name,last_name), quizes(title), categories(name)')
+        .eq('category_id', categoryId);
 
-      final response = await _supabase
-          .from(_tableName)
-          .insert({
-            'user_id': score.userId,
-            'quiz_id': score.quizId,
-            'total_score': score.totalScore,
-            'maximum_score': score.maximumScore,
-            'created_at': DateTime.now().toIso8601String(),
-          })
-          .select()
-          .single();
-
-      return QuizScoreModel.fromJson(response);
-    } on PostgrestException catch (e) {
-      print('Postgrest Error: ${e.message}');
-      throw 'Database error: ${e.message}';
-    } catch (e) {
-      print('Unexpected error: $e');
-      throw 'Something went wrong. Please try again';
-    }
+    return response
+        .map((quizScore) => QuizScoreModel.fromJson(quizScore))
+        .toList();
   }
 
-  // Get scores for a specific user
-  Future<List<QuizScoreModel>> getUserScores(String userId) async {
-    try {
-      _checkAuth();
+  /// Get scores by user
+  Future<List<QuizScoreModel>> getQuizScoresByUser(String userId) async {
+    final response = await _supabase
+        .from('quiz_scores')
+        .select(
+            '*, users(first_name, last_name), quizes(title), categories(name)')
+        .eq('user_id', userId);
 
-      final response = await _supabase
-          .from(_tableName)
-          .select('*, quizzes(title, category_id)')
-          .eq('user_id', userId)
-          .order('created_at', ascending: false);
-
-      return response.map((json) => QuizScoreModel.fromJson(json)).toList();
-    } on PostgrestException catch (e) {
-      print('Postgrest Error: ${e.message}');
-      throw 'Database error: ${e.message}';
-    } catch (e) {
-      print('Unexpected error: $e');
-      throw 'Something went wrong. Please try again';
-    }
+    return response.map((e) => QuizScoreModel.fromJson(e)).toList();
   }
 
-  // Get scores for a specific quiz
-  Future<List<QuizScoreModel>> getQuizScores(String quizId) async {
-    try {
-      _checkAuth();
+  /// Get scores by user and category
+  Future<List<QuizScoreModel>> getQuizScoresByUserAndCategory(
+      String userId, String categoryId) async {
+    final response = await _supabase
+        .from('quiz_scores')
+        .select(
+            '*, users(first_name,last_name), quizes(title), categories(name)')
+        .eq('user_id', userId)
+        .eq('category_id', categoryId);
 
-      final response = await _supabase
-          .from(_tableName)
-          .select('*, users(name, email)')
-          .eq('quiz_id', quizId)
-          .order('total_score', ascending: false);
-
-      return response.map((json) => QuizScoreModel.fromJson(json)).toList();
-    } on PostgrestException catch (e) {
-      print('Postgrest Error: ${e.message}');
-      throw 'Database error: ${e.message}';
-    } catch (e) {
-      print('Unexpected error: $e');
-      throw 'Something went wrong. Please try again';
-    }
+    return response
+        .map((quizScore) => QuizScoreModel.fromJson(quizScore))
+        .toList();
   }
 
-  // Get leaderboard scores across all quizzes
+  /// Get scores by user and quiz
+  Future<List<QuizScoreModel>> getQuizScoresByUserAndQuiz(
+      String userId, String quizId) async {
+    final response = await _supabase
+        .from('quiz_scores')
+        .select(
+            '*, users(first_name,last_name), quizes(title), categories(name)')
+        .eq('user_id', userId)
+        .eq('quiz_id', quizId);
+
+    return response
+        .map((quizScore) => QuizScoreModel.fromJson(quizScore))
+        .toList();
+  }
+
+  /// Get overall leaderboard scores (sorted by totalScore)
   Future<List<QuizScoreModel>> getLeaderboardScores() async {
+    final response = await _supabase
+        .from('quiz_scores')
+        .select(
+            '*, users(first_name,last_name), quizes(title), categories(name)')
+        .order('score', ascending: false);
+
+    return response.map((e) => QuizScoreModel.fromJson(e)).toList();
+  }
+
+  //get weakly quiz attempts
+  Future<Map<String, int>> getWeeklyQuizAttempts() async {
     try {
-      _checkAuth();
-
       final response = await _supabase
-          .from(_tableName)
-          .select('*, users(name, email), quizzes(title)')
-          .order('total_score', ascending: false)
-          .limit(100);
+          .from('quiz_scores')
+          .select('created_at'); // Fetch only dates
 
-      return response.map((json) => QuizScoreModel.fromJson(json)).toList();
+      /// Create a map to store attempts count for each weekday
+      Map<String, int> weeklyAttempts = {
+        'Mon': 0,
+        'Tue': 0,
+        'Wed': 0,
+        'Thu': 0,
+        'Fri': 0,
+        'Sat': 0,
+        'Sun': 0
+      };
+
+      for (var doc in response) {
+        DateTime attemptDate = DateTime.parse(doc['created_at']);
+        String dayOfWeek = THelperFunctions.getDayOfWeek(
+            attemptDate); // Convert to 'Mon', 'Tue', etc.
+
+        if (weeklyAttempts.containsKey(dayOfWeek)) {
+          weeklyAttempts[dayOfWeek] = (weeklyAttempts[dayOfWeek] ?? 0) + 1;
+        }
+      }
+
+      return weeklyAttempts;
     } on PostgrestException catch (e) {
-      print('Postgrest Error: ${e.message}');
-      throw 'Database error: ${e.message}';
+      throw TSupabaseException(e.message).message;
     } catch (e) {
-      print('Unexpected error: $e');
-      throw 'Something went wrong. Please try again';
+      if (kDebugMode) print('Error fetching quiz attempts: $e');
+      throw 'Something Went Wrong: $e';
     }
+  }
+
+  /// Save a new quiz score
+  Future<void> addQuizScore(QuizScoreModel score) async {
+    await _supabase.from('quiz_scores').insert(score.toJson());
+  }
+
+  /// Update a quiz score
+  Future<void> updateQuizScore(String scoreId, int newScore) async {
+    await _supabase
+        .from('quiz_scores')
+        .update({'score': newScore}).eq('id', scoreId);
+  }
+
+  /// Delete a quiz score
+  Future<void> deleteQuizScore(String scoreId) async {
+    await _supabase.from('quiz_scores').delete().eq('id', scoreId);
   }
 }

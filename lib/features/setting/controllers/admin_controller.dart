@@ -9,7 +9,7 @@ import '../../../utils/helpers/network_manager.dart';
 import '../../../utils/popups/full_screen_loader.dart';
 import '../../../utils/popups/loaders.dart';
 
-import '../models/user_model.dart';
+import '../models/admin_model.dart';
 
 /// Controller for managing admin-related data and operations
 class AdminController extends GetxController {
@@ -17,7 +17,7 @@ class AdminController extends GetxController {
 
   // Observable variables
   RxBool loading = false.obs;
-  Rx<UserModel> user = UserModel.empty().obs;
+  Rx<AdminModel> user = AdminModel.empty().obs;
 
   final formKey = GlobalKey<FormState>();
   final firstNameController = TextEditingController();
@@ -36,7 +36,7 @@ class AdminController extends GetxController {
   }
 
   /// Fetches user details from the repository
-  Future<UserModel> fetchUserDetails() async {
+  Future<AdminModel> fetchUserDetails() async {
     try {
       loading.value = true;
       if (user.value.id == null || user.value.id!.isEmpty) {
@@ -52,7 +52,7 @@ class AdminController extends GetxController {
     } catch (e) {
       TLoaders.errorSnackBar(
           title: 'Something went wrong.', message: e.toString());
-      return UserModel.empty();
+      return AdminModel.empty();
     }
   }
 

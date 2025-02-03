@@ -75,9 +75,9 @@ class CreateQuestionController extends GetxController {
           'D': optionDController.text.trim(),
         },
         correctAnswer: correctAnswer.value,
+        categoryId: selectedQuiz.value.categoryId,
         explanation: explanationController.text.trim(),
         quizId: selectedQuiz.value.id,
-        quizName: selectedQuiz.value.title,
         imageUrl: imageUrlController.text.trim().isNotEmpty
             ? imageUrlController.text.trim()
             : null,

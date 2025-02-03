@@ -39,7 +39,10 @@ class QuestionRows extends DataTableSource {
           ),
         ),
         DataCell(
-          Text(quiz.quizName),
+          Text(quiz.categoryName!),
+        ),
+        DataCell(
+          Text(quiz.quizName!),
         ),
         DataCell(Text(quiz.correctAnswer)),
         DataCell(

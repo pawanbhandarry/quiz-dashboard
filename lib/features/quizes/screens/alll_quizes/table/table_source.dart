@@ -42,7 +42,7 @@ class QuizRows extends DataTableSource {
           ),
         ),
         DataCell(
-          Text(quiz.categoryName),
+          Text(quiz.categoryName == null ? '' : quiz.categoryName!),
         ),
         DataCell(Text("${quiz.timer.toString()} min")),
         DataCell(Text(quiz.createdAt == null ? '' : quiz.formattedDate)),
