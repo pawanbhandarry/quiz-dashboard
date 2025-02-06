@@ -5,6 +5,7 @@ import '../../../data/repositories/categories/category_repository.dart';
 import '../../../data/repositories/reports/quiz_score_repository.dart';
 import '../../../data/repositories/user/user_repository.dart';
 import '../../quizes/models/quizes_models.dart';
+import '../../reports/controller/quiz_score_controller.dart';
 import '../../reports/models/quiz_score_model.dart';
 import '../../user/models/user_models.dart';
 
@@ -36,6 +37,7 @@ class DashboardController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    Get.put(QuizScoreController());
     fetchDashboardStatistics();
   }
 

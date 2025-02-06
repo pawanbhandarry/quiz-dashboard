@@ -88,8 +88,8 @@ class EditQuizForm extends StatelessWidget {
             // Timer Field
             TextFormField(
               controller: editController.timer,
-              validator: (value) =>
-                  TValidator.validateNumeric('Timer (minutes)', value),
+              // validator: (value) =>
+              //     TValidator.validateNumeric('Timer (minutes)', value),
               decoration: const InputDecoration(
                 labelText: 'Timer (minutes)',
                 prefixIcon: Icon(Iconsax.timer),

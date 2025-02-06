@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
 import '../../../../../utils/device/device_utility.dart';
+import '../../../../../utils/popups/loaders.dart';
 
 class UserScoreTableHeader extends StatelessWidget {
   final UserModel user;
@@ -82,8 +83,16 @@ class UserScoreTableHeader extends StatelessWidget {
             ),
             child: const Text('Export PDF'),
           ),
-          onPressed: () {
-            ReportController().generateAndDownloadPDF(controller.filteredItems);
+          onPressed: () async {
+            try {
+              await ReportController().generateStudentPerformanceReport(
+                student: user,
+                quizScores: controller.filteredItems,
+              );
+            } catch (e) {
+              TLoaders.errorSnackBar(
+                  title: 'Error', message: 'Failed to generate report');
+            }
           },
         ),
       ],

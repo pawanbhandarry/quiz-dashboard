@@ -4,11 +4,12 @@ import '../../../utils/constants/enums.dart';
 /// Model class representing user data.
 class UserModel {
   final String? id;
-  String firstName;
-  String lastName;
+  String name;
   int score;
   String email;
   String profilePicture;
+  String grade;
+  String schoolName;
   String status;
   DateTime? createdAt;
   DateTime? updatedAt;
@@ -17,17 +18,18 @@ class UserModel {
   UserModel({
     this.id,
     required this.email,
-    this.firstName = '',
-    this.lastName = '',
+    this.name = '',
     this.score = 0,
     this.profilePicture = '',
     this.status = 'active',
     this.createdAt,
+    this.grade = '',
+    this.schoolName = '',
     this.updatedAt,
   });
 
   /// Helper methods
-  String get fullName => '$firstName $lastName';
+  String get fullName => name;
 
   String get formattedDate => TFormatter.formatDate(createdAt);
 
@@ -41,11 +43,12 @@ class UserModel {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'first_name': firstName,
-      'last_name': lastName,
+      'name': name,
       'email': email,
       'score': score,
       'profile_picture': profilePicture,
+      'grade': grade,
+      'school_name': schoolName,
       'status': status,
       'created_at': createdAt?.toIso8601String(),
       'updated_at':
@@ -57,11 +60,12 @@ class UserModel {
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       id: json['id'] ?? '',
-      firstName: json['first_name'] ?? '',
-      lastName: json['last_name'] ?? '',
+      name: json['name'] ?? '',
       email: json['email'] ?? '',
       score: json['score'] ?? 0,
       profilePicture: json['profile_picture'] ?? '',
+      grade: json['grade'] ?? '',
+      schoolName: json['school_name'] ?? '',
       status: json['status'] ?? 'active',
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'])

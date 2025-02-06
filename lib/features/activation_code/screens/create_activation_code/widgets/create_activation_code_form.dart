@@ -141,7 +141,7 @@ class _CreateActivationCodeFormState extends State<CreateActivationCodeForm> {
 
                     return ListTile(
                       title: Text(user.email),
-                      subtitle: Text('${user.firstName} ${user.lastName}'),
+                      subtitle: Text(user.name),
                       trailing: Icon(
                         isSelected
                             ? Icons.check_circle

@@ -148,7 +148,7 @@ class _EditActivationCodeFormState extends State<EditActivationCodeForm> {
 
                     return Obx(() => ListTile(
                           title: Text(user.email),
-                          subtitle: Text('${user.firstName} ${user.lastName}'),
+                          subtitle: Text(user.name),
                           trailing: Icon(
                             editController.isUserSelected(user.id!)
                                 ? Icons.check_circle

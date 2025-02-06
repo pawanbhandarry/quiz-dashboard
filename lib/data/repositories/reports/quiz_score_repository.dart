@@ -32,8 +32,7 @@ class QuizScoreRepository {
     print('categoryId: $categoryId');
     final response = await _supabase
         .from('quiz_scores')
-        .select(
-            '*, users(first_name,last_name), quizes(title), categories(name)')
+        .select('*, users(name), quizes(title), categories(name)')
         .eq('category_id', categoryId);
 
     return response
@@ -45,8 +44,7 @@ class QuizScoreRepository {
   Future<List<QuizScoreModel>> getQuizScoresByUser(String userId) async {
     final response = await _supabase
         .from('quiz_scores')
-        .select(
-            '*, users(first_name, last_name), quizes(title), categories(name)')
+        .select('*, users(name), quizes(title), categories(name)')
         .eq('user_id', userId);
 
     return response.map((e) => QuizScoreModel.fromJson(e)).toList();
@@ -72,8 +70,7 @@ class QuizScoreRepository {
       String userId, String quizId) async {
     final response = await _supabase
         .from('quiz_scores')
-        .select(
-            '*, users(first_name,last_name), quizes(title), categories(name)')
+        .select('*, users(name), quizes(title), categories(name)')
         .eq('user_id', userId)
         .eq('quiz_id', quizId);
 
@@ -86,8 +83,7 @@ class QuizScoreRepository {
   Future<List<QuizScoreModel>> getLeaderboardScores() async {
     final response = await _supabase
         .from('quiz_scores')
-        .select(
-            '*, users(first_name,last_name), quizes(title), categories(name)')
+        .select('*, users(name), quizes(title), categories(name)')
         .order('score', ascending: false);
 
     return response.map((e) => QuizScoreModel.fromJson(e)).toList();

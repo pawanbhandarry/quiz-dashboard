@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import '../../../../common/widgets/icons/t_circular_icon.dart';
 import '../../../../utils/constants/sizes.dart';
+import '../../../reports/controller/quiz_score_controller.dart';
 import '../../controller/dashboard_controller.dart';
 
 class RecentQuizAttempts extends StatelessWidget {
@@ -12,6 +13,7 @@ class RecentQuizAttempts extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<DashboardController>();
+    Get.put(QuizScoreController());
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

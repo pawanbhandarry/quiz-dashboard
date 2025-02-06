@@ -54,8 +54,7 @@ class CreateActivationCodeController extends GetxController {
       filteredUsers.assignAll(
         allUsers.where((user) =>
             user.email.toLowerCase().contains(query.toLowerCase()) ||
-            user.firstName.toLowerCase().contains(query.toLowerCase()) ||
-            user.lastName.toLowerCase().contains(query.toLowerCase())),
+            user.name.toLowerCase().contains(query.toLowerCase())),
       );
     }
   }

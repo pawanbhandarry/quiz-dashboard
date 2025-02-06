@@ -6,7 +6,9 @@ class QuizScoreModel {
   String quizId;
   String categoryId;
   int score;
+  int incorrectAnswers;
   int totalScore;
+  int timeTaken;
   DateTime? createdAt;
   DateTime? updatedAt;
 
@@ -22,6 +24,8 @@ class QuizScoreModel {
     required this.categoryId,
     this.totalScore = 0,
     this.score = 0,
+    this.incorrectAnswers = 0,
+    this.timeTaken = 0,
     this.createdAt,
     this.updatedAt,
     this.userName,
@@ -41,6 +45,8 @@ class QuizScoreModel {
       'quiz_id': quizId,
       'category_id': categoryId,
       'score': score,
+      'time_taken': timeTaken,
+      'incorrect_answers': incorrectAnswers,
       'total_score': totalScore,
       'created_at': createdAt?.toIso8601String(),
       'updated_at': DateTime.now().toIso8601String(),
@@ -56,14 +62,16 @@ class QuizScoreModel {
       categoryId: json['category_id'] ?? '',
       score: json['score'] ?? 0,
       totalScore: json['total_score'] ?? 0,
+      incorrectAnswers: json['incorrect_answers'] ?? 0,
+      timeTaken: json['time_taken'] ?? 0,
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'])
           : null,
       updatedAt: json['updated_at'] != null
           ? DateTime.parse(json['updated_at'])
           : null,
-      userName: json['users'] != null && json['users']['first_name'] != null
-          ? "${json['users']['first_name']} ${json['users']['last_name']}"
+      userName: json['users'] != null && json['users']['name'] != null
+          ? "${json['users']['name']}"
           : null,
       quizTitle: json['quizes'] != null && json['quizes']['title'] != null
           ? json['quizes']['title']

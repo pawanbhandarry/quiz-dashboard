@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
+import '../../../../../routes/routes.dart';
+import '../../../../../utils/constants/colors.dart';
 import '../../../../../utils/device/device_utility.dart';
 import '../../../controller/user_controller.dart';
 
@@ -16,8 +18,18 @@ class UserTableHeader extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-            flex: !TDeviceUtils.isDesktopScreen(context) ? 0 : 3,
-            child: const SizedBox()),
+          flex: !TDeviceUtils.isDesktopScreen(context) ? 1 : 3,
+          child: Row(
+            children: [
+              SizedBox(
+                  width: 200,
+                  child: ElevatedButton(
+                      onPressed: () => Get.toNamed(TRoutes.addQuestion),
+                      child: const Text('Add User'))),
+            ],
+          ),
+        ),
+        // Search Field
         Expanded(
           flex: TDeviceUtils.isDesktopScreen(context) ? 2 : 1,
           child: TextFormField(

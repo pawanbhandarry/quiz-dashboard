@@ -98,8 +98,13 @@ class ReportsTableHeader extends StatelessWidget {
             ),
             child: const Text('Export PDF'),
           ),
-          onPressed: () {
-            ReportController().generateAndDownloadPDF(controller.filteredItems);
+          onPressed: () async {
+            // final reportController = ReportController();
+            // final reportFile =
+            //     await reportController.generateStudentPerformanceReport(
+            //   student: user,
+            //   quizScores: controller.filteredItems,
+            // );
           },
         ),
       ],

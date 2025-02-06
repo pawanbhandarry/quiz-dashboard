@@ -139,7 +139,7 @@ class LeaderboardWidget extends StatelessWidget {
                     ),
                   ),
                   title: Text(
-                    user.firstName,
+                    user.name,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                     ),
@@ -201,7 +201,7 @@ class LeaderboardWidget extends StatelessWidget {
             radius: rank == '1' ? 28 : 24,
             backgroundColor: Colors.white,
             child: Text(
-              user.firstName[0].toUpperCase(),
+              user.name[0].toUpperCase(),
               style: TextStyle(
                 color: color,
                 fontWeight: FontWeight.bold,
@@ -212,7 +212,7 @@ class LeaderboardWidget extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          user.firstName,
+          user.name,
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: rank == '1' ? 16 : 14,

@@ -9,6 +9,7 @@ import '../../../../../utils/constants/colors.dart';
 import '../../../../../utils/constants/enums.dart';
 import '../../../../../utils/constants/sizes.dart';
 import '../../../controller/user_controller.dart';
+import '../../../models/user_models.dart';
 
 class UserRows extends DataTableSource {
   final controller = UserController.instance;
@@ -58,9 +59,45 @@ class UserRows extends DataTableSource {
             delete: false,
             onViewPressed: () =>
                 Get.toNamed(TRoutes.userDetails, arguments: user),
-            onEditPressed: () => controller.toggleUserStatus(user),
+            onEditPressed: () {
+              _showPopupMenu(user, controller);
+            },
             // onDeletePressed: () => controller.toggleUserStatus(user),
           ),
+        ),
+      ],
+    );
+  }
+
+  void _showPopupMenu(UserModel user, UserController controller) async {
+    final BuildContext? overlayContext = Get.overlayContext;
+
+    if (overlayContext == null) {
+      debugPrint("Overlay context is null");
+      return;
+    }
+
+    final RenderBox overlay = overlayContext.findRenderObject() as RenderBox;
+
+    await showMenu(
+      color: TColors.lightContainer,
+      context: overlayContext,
+      position: RelativeRect.fromLTRB(
+        overlay.size.width - 150,
+        overlay.size.height / 2,
+        overlay.size.width,
+        overlay.size.height,
+      ),
+      items: [
+        PopupMenuItem(
+          value: 'Activate',
+          child: Text('Activate'),
+          onTap: () => controller.activateUser(user),
+        ),
+        PopupMenuItem(
+          value: 'Deactivate',
+          child: Text('Deactivate'),
+          onTap: () => controller.deactivateUser(user),
         ),
       ],
     );

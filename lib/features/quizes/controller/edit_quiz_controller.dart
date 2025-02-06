@@ -103,9 +103,8 @@ class EditQuizController extends GetxController {
       // Update quiz data
       quiz.title = title.text.trim();
       quiz.description = description.text.trim();
-      quiz.timer = int.parse(timer.text.trim());
+      quiz.timer = timer.text.isEmpty ? 0 : int.parse(timer.text.trim());
       quiz.categoryId = selectedCategory.value.id;
-      quiz.categoryName = selectedCategory.value.name;
       quiz.updatedAt = DateTime.now();
 
       // Call repository to update the quiz

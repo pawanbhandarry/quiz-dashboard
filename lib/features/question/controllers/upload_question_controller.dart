@@ -55,9 +55,11 @@ class UploadQuestionController extends GetxController {
 
         // Read CSV content
         String csvString = String.fromCharCodes(result.files.first.bytes!);
-        List<List<dynamic>> csvTable =
-            const CsvToListConverter().convert(csvString);
-
+        List<List<dynamic>> csvTable = const CsvToListConverter()
+            .convert(csvString, eol: '\n', fieldDelimiter: ',');
+        if (csvTable.isNotEmpty) {
+          csvTable.removeAt(0);
+        }
         // Validate CSV
         if (csvTable.length < 2) {
           TLoaders.errorSnackBar(
@@ -69,7 +71,8 @@ class UploadQuestionController extends GetxController {
         // Process questions (skip header)
         for (var row in csvTable.skip(1)) {
           if (row.length < 7) continue;
-
+          final correctOptionKey =
+              row[5].toString().toUpperCase(); // Ensure it's uppercase
           final question = QuestionModel(
             id: '',
             question: row[0].toString(),
@@ -79,13 +82,15 @@ class UploadQuestionController extends GetxController {
               'C': row[3].toString(),
               'D': row[4].toString(),
             },
-            correctAnswer: row[5].toString(),
+            correctAnswer: '',
             explanation: row[6].toString(),
             quizId: selectedQuiz.value.id,
             categoryId: selectedQuiz.value.categoryId,
             imageUrl: row.length > 7 ? row[7].toString() : null,
           );
-
+          final correctAnswerValue =
+              question.options[correctOptionKey] ?? ''; // Get actual answer
+          question.correctAnswer = correctAnswerValue;
           preparedQuestions.add(question);
         }
 
@@ -158,16 +163,6 @@ class UploadQuestionController extends GetxController {
         'Explanation',
         'Image URL'
       ],
-      [
-        'Sample Question',
-        'Option A Text',
-        'Option B Text',
-        'Option C Text',
-        'Option D Text',
-        'A',
-        'Explanation Text',
-        'Optional Image URL'
-      ]
     ];
 
     String csv = const ListToCsvConverter().convert(csvData);

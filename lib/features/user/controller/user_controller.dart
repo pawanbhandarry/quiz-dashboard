@@ -30,8 +30,13 @@ class UserController extends TBaseController<UserModel> {
     await _userRepository.deleteUser(item.id ?? '');
   }
 
-  void toggleUserStatus(UserModel user) async {
-    await _userRepository.toggleUserStatus(user.id ?? '', user.status);
-    await fetchItems(); // Refresh user list after update
+  void activateUser(UserModel user) async {
+    await _userRepository.deactivateUser(user.id!, 'active');
+    await fetchItems();
+  }
+
+  void deactivateUser(UserModel user) async {
+    await _userRepository.deactivateUser(user.id!, 'inactive');
+    await fetchItems();
   }
 }

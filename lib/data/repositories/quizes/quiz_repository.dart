@@ -98,7 +98,6 @@ class QuizRepository extends GetxController {
         'title': quiz.title,
         'category_id': quiz.categoryId,
         'description': quiz.description,
-        'category_name': quiz.categoryName,
         'timer': quiz.timer,
         'updated_at': DateTime.now().toIso8601String(),
       }).eq('id', quiz.id);

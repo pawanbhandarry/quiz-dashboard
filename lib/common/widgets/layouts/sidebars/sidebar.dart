@@ -28,20 +28,20 @@ class TSidebar extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: TSizes.spaceBtwSections),
               Row(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: TSizes.md),
-                    child: Icon(
-                      Iconsax.book_square5,
-                      size: 60,
-                    ),
+                  TCircularImage(
+                    width: 60,
+                    height: 60,
+                    padding: 0,
+                    margin: TSizes.sm,
+                    backgroundColor: Colors.transparent,
+                    imageType: ImageType.asset,
+                    image: TImages.cwtLogo,
                   ),
                   Expanded(
                     child: Text(
-                      'Quiz Master',
+                      'LQlogic',
                       style: Theme.of(context).textTheme.headlineLarge,
                       overflow: TextOverflow.ellipsis,
                     ),

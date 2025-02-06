@@ -77,7 +77,9 @@ class CreateQuizController extends GetxController {
         title: title.text.trim(),
         description: description.text.trim(),
         categoryName: selectedCategory.value.name,
-        timer: int.parse(timer.text.trim()), // Convert timer to integer
+        timer: timer.text.isEmpty
+            ? 0
+            : int.parse(timer.text.trim()), // Convert timer to integer
         shareableCode: generateShareableCode(), // Generate a unique code
         createdAt: DateTime.now(),
       );

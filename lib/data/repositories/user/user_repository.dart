@@ -28,8 +28,7 @@ class UserRepository extends GetxController {
   /// Function to fetch all users except admins
   Future<List<UserModel>> getAllUsers() async {
     try {
-      final response =
-          await _supabase.from('users').select().order('first_name');
+      final response = await _supabase.from('users').select().order('name');
 
       return response.map((doc) => UserModel.fromJson(doc)).toList();
     } on PostgrestException catch (e) {
@@ -116,9 +115,23 @@ class UserRepository extends GetxController {
   }
 
 // Change Status
-  Future<void> toggleUserStatus(String userId, String currentStatus) async {
+  Future<void> activateUser(String userId, String currentStatus) async {
     try {
-      String newStatus = currentStatus == 'active' ? 'inactive' : 'active';
+      String newStatus = 'active';
+
+      await _supabase
+          .from('users')
+          .update({'status': newStatus}).eq('id', userId);
+    } on PostgrestException catch (e) {
+      throw TSupabaseException(e.message).message;
+    } catch (e) {
+      throw 'Something went wrong. Please try again';
+    }
+  }
+
+  Future<void> deactivateUser(String userId, String currentStatus) async {
+    try {
+      String newStatus = 'inactive';
 
       await _supabase
           .from('users')
