@@ -36,7 +36,7 @@ class ReportController {
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
-        margin: const pw.EdgeInsets.all(40),
+        margin: const pw.EdgeInsets.all(42),
         build: (context) => [
           _buildHeader(student),
           _buildStudentProfile(student, quizScores),
