@@ -31,9 +31,9 @@ class UserScoreTableHeader extends StatelessWidget {
                 border: OutlineInputBorder(),
               ),
               items: controller.categories
-                  .map((quiz) => DropdownMenuItem(
-                        value: quiz.id,
-                        child: Text(quiz.name),
+                  .map((categories) => DropdownMenuItem(
+                        value: categories.id,
+                        child: Text(categories.name),
                       ))
                   .toList(),
               onChanged: (value) => controller.filterByCategory(value!),
@@ -43,17 +43,17 @@ class UserScoreTableHeader extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(width: 10),
-        Expanded(
-          flex: TDeviceUtils.isDesktopScreen(context) ? 2 : 1,
-          child: TextFormField(
-            controller: controller.searchTextController,
-            onChanged: (query) => controller.searchQuery(query),
-            decoration: const InputDecoration(
-                hintText: 'Search Quizes',
-                prefixIcon: Icon(Iconsax.search_normal)),
-          ),
-        ),
+        // const SizedBox(width: 10),
+        // Expanded(
+        //   flex: TDeviceUtils.isDesktopScreen(context) ? 2 : 1,
+        //   child: TextFormField(
+        //     controller: controller.searchTextController,
+        //     onChanged: (query) => controller.searchQuery(query),
+        //     decoration: const InputDecoration(
+        //         hintText: 'Search Quizes',
+        //         prefixIcon: Icon(Iconsax.search_normal)),
+        //   ),
+        // ),
         const SizedBox(width: 10),
         Expanded(
           child: Obx(
@@ -85,10 +85,15 @@ class UserScoreTableHeader extends StatelessWidget {
           ),
           onPressed: () async {
             try {
-              await ReportController().generateStudentPerformanceReport(
-                student: user,
-                quizScores: controller.filteredItems,
-              );
+              if (controller.filteredItems.isEmpty) {
+                TLoaders.errorSnackBar(
+                    title: 'Data Unvailable', message: 'No data to export');
+              } else {
+                await ReportController().generateStudentPerformanceReport(
+                  student: user,
+                  quizScores: controller.filteredItems,
+                );
+              }
             } catch (e) {
               TLoaders.errorSnackBar(
                   title: 'Error', message: 'Failed to generate report');

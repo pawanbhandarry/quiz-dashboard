@@ -14,7 +14,9 @@ import '../../../../reports/controller/quiz_score_controller.dart';
 import '../../../models/user_models.dart';
 import '../table/data_table.dart';
 import '../widgets/user_info.dart';
+import '../widgets/user_performance_overview.dart';
 import '../widgets/user_table_header.dart';
+import '../widgets/user_top_performing_category.dart';
 
 class UserDetailDesktopScreen extends StatelessWidget {
   const UserDetailDesktopScreen({super.key, required this.user});
@@ -42,23 +44,26 @@ class UserDetailDesktopScreen extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Right Side Customer Information
                   Expanded(
+                    flex: 1,
                     child: Column(
                       children: [
-                        // Customer Info
                         UserInfo(
                           user: user,
                         ),
                         const SizedBox(height: TSizes.spaceBtwSections),
-
-                        // Shipping Address
-                        // const ShippingAddress(),
                       ],
                     ),
                   ),
+                  const SizedBox(width: TSizes.spaceBtwItems),
+                  Expanded(
+                    flex: 2,
+                    child: UserPerformanceOverview(user: user),
+                  ),
                 ],
               ),
+
+              TopPerformingCategories(user: user),
               const SizedBox(height: TSizes.spaceBtwSections),
               Obx(() {
                 if (scoreController.isLoading.value) {

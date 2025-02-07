@@ -27,6 +27,9 @@ class QuizScoreController extends TBaseController<QuizScoreModel> {
 
   final RxString selectedUser = ''.obs;
   final RxString selectedQuiz = ''.obs;
+  QuizModel selectedQuizModel = QuizModel.empty();
+  UserModel selectedUserModel = UserModel.empty();
+  CategoryModel selectedCategoryModel = CategoryModel.empty();
   final RxString selectedCategory = ''.obs;
 
   @override
@@ -45,26 +48,37 @@ class QuizScoreController extends TBaseController<QuizScoreModel> {
         final quizScores =
             await _quizScoreRepository.getQuizScoresByUserAndCategory(
                 selectedUser.value, selectedCategory.value);
+        selectedUserModel =
+            users.firstWhere((user) => user.id == selectedUser.value);
         updateQuizScoresList(quizScores);
       } else if (selectedUser.isNotEmpty && selectedQuiz.isNotEmpty) {
         // Filter by User + Quiz
         final quizScores = await _quizScoreRepository
             .getQuizScoresByUserAndQuiz(selectedUser.value, selectedQuiz.value);
+        selectedUserModel =
+            users.firstWhere((user) => user.id == selectedUser.value);
         updateQuizScoresList(quizScores);
       } else if (selectedUser.isNotEmpty) {
         // Filter by User only
         final quizScores =
             await _quizScoreRepository.getQuizScoresByUser(selectedUser.value);
         updateQuizScoresList(quizScores);
+        selectedUserModel =
+            users.firstWhere((user) => user.id == selectedUser.value);
       } else if (selectedQuiz.isNotEmpty) {
         // Filter by Quiz only
         final quizScores =
             await _quizScoreRepository.getQuizScoresByQuiz(selectedQuiz.value);
+        selectedQuizModel =
+            quizzes.firstWhere((quiz) => quiz.id == selectedQuiz.value);
+
         updateQuizScoresList(quizScores);
       } else if (selectedCategory.isNotEmpty) {
         // Filter by Category only
         final quizScores = await _quizScoreRepository
             .getQuizScoresByCategory(selectedCategory.value);
+        selectedCategoryModel = categories
+            .firstWhere((category) => category.id == selectedCategory.value);
         updateQuizScoresList(quizScores);
       } else {
         // Default: Get all leaderboard scores

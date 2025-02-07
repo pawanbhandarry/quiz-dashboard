@@ -67,6 +67,8 @@ dependencies:
   printing: ^5.14.0
   pie_chart: ^5.4.0
   google_fonts: ^6.2.1
+  glassmorphism: ^3.0.0
+  animations: ^2.0.11
 
 dev_dependencies:
   flutter_test:

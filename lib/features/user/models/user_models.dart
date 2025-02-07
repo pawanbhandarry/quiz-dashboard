@@ -64,8 +64,8 @@ class UserModel {
       email: json['email'] ?? '',
       score: json['score'] ?? 0,
       profilePicture: json['profile_picture'] ?? '',
-      grade: json['grade'] ?? '',
-      schoolName: json['school_name'] ?? '',
+      grade: json['grade'] ?? 'N/A',
+      schoolName: json['school_name'] ?? 'N/A',
       status: json['status'] ?? 'active',
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'])

@@ -1,7 +1,10 @@
 import 'package:dashboard/features/quizes/controller/quiz_controller.dart';
+import 'package:dashboard/features/reports/controller/category_report_controller.dart';
+import 'package:dashboard/features/reports/controller/quiz_report_controller.dart';
 import 'package:dashboard/features/reports/controller/quiz_score_controller.dart';
 import 'package:dashboard/features/reports/controller/reportController.dart';
 import 'package:dashboard/routes/routes.dart';
+import 'package:dashboard/utils/popups/loaders.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -47,9 +50,9 @@ class ReportsTableHeader extends StatelessWidget {
                 border: OutlineInputBorder(),
               ),
               items: controller.categories
-                  .map((quiz) => DropdownMenuItem(
-                        value: quiz.id,
-                        child: Text(quiz.name),
+                  .map((category) => DropdownMenuItem(
+                        value: category.id,
+                        child: Text(category.name),
                       ))
                   .toList(),
               onChanged: (value) => controller.filterByCategory(value!),
@@ -99,12 +102,36 @@ class ReportsTableHeader extends StatelessWidget {
             child: const Text('Export PDF'),
           ),
           onPressed: () async {
-            // final reportController = ReportController();
-            // final reportFile =
-            //     await reportController.generateStudentPerformanceReport(
-            //   student: user,
-            //   quizScores: controller.filteredItems,
-            // );
+            if (controller.selectedUser.isNotEmpty &&
+                controller.filteredItems.isNotEmpty) {
+              ReportController().generateStudentPerformanceReport(
+                quizScores: controller.filteredItems,
+                student: controller.selectedUserModel,
+              );
+            } else if (controller.selectedQuiz.isNotEmpty &&
+                controller.selectedUser.isEmpty &&
+                controller.filteredItems.isNotEmpty) {
+              final reportController = QuizReportController();
+              await reportController.generateQuizReport(
+                quiz: controller.selectedQuizModel,
+                quizScores: controller.filteredItems,
+              );
+            } else if (controller.selectedCategory.isNotEmpty &&
+                controller.selectedUser.isEmpty &&
+                controller.filteredItems.isNotEmpty) {
+              final reportController = CategoryReportController();
+              await reportController.generateCategoryReport(
+                category: controller.selectedCategoryModel,
+                quizScores: controller.filteredItems,
+              );
+            } else if (controller.filteredItems.isEmpty) {
+              TLoaders.errorSnackBar(
+                  title: 'Data Unavailable', message: 'No data to export');
+            } else {
+              TLoaders.errorSnackBar(
+                  title: 'Data Unavailable',
+                  message: 'Please select a user or quiz to export');
+            }
           },
         ),
       ],

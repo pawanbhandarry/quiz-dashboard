@@ -35,6 +35,7 @@ class QuizTable extends StatelessWidget {
                     controller.sortByName(columnIndex, ascending)),
             const DataColumn2(label: Text('Category')),
             const DataColumn2(label: Text('Timer')),
+            const DataColumn2(label: Text('Total Questions')),
             const DataColumn2(label: Text('Created Date')),
             const DataColumn2(label: Text('Action'), fixedWidth: 100),
           ],

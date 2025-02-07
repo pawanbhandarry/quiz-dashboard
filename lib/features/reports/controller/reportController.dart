@@ -1,21 +1,22 @@
 import 'dart:html' as html;
 import 'dart:typed_data';
 
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:pdf/widgets.dart' as pdfWidgets;
-
 import 'package:pdf/pdf.dart';
+
 import 'package:pdf/widgets.dart' as pw;
 
+import '../../user/models/user_category_stats.dart';
 import '../../user/models/user_models.dart';
+import '../../user/models/user_performance_matrics.dart';
 import '../models/quiz_score_model.dart';
 
 class ReportController {
-  final PdfColor _primaryColor = PdfColors.blueAccent;
-  final PdfColor _secondaryColor = PdfColors.lightBlue300;
-  final PdfColor _accentColor = PdfColors.amber600;
+  final PdfColor _primaryColor = PdfColor.fromHex('#2A4C7D');
+  final PdfColor _secondaryColor = PdfColor.fromHex('#4A90E2');
+  final PdfColor _accentColor = PdfColor.fromHex('#FF6B6B');
+  final PdfColor _successColor = PdfColor.fromHex('#4CAF50');
+  final PdfColor _backgroundLight = PdfColor.fromHex('#F8F9FA');
 
   Future<void> generateStudentPerformanceReport({
     required UserModel student,
@@ -42,9 +43,10 @@ class ReportController {
           _buildStudentProfile(student, quizScores),
           _buildPerformanceHighlights(metrics),
           _buildRadialGauges(metrics),
-          _buildQuizPerformanceTable(limitedQuizScores),
+          _buildTopPerfomersSection(metrics, quizScores),
+          _buildQuizPerformanceCards(limitedQuizScores),
           _buildCategoryPerformance(limitedQuizScores),
-          _buildRecommendationsSection(metrics),
+          // _buildRecommendationsSection(metrics),
         ],
         footer: _buildFooter,
       ),
@@ -54,22 +56,111 @@ class ReportController {
     _downloadPDF(pdfBytes);
   }
 
+  pw.Widget _buildProgressSummary(PerformanceMetrics metrics) {
+    return pw.Container(
+      padding: const pw.EdgeInsets.all(12),
+      decoration: pw.BoxDecoration(
+        color: PdfColors.grey100,
+        borderRadius: pw.BorderRadius.circular(8),
+      ),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text(
+            'Detailed Progress Summary',
+            style: pw.TextStyle(
+              fontSize: 14,
+              fontWeight: pw.FontWeight.bold,
+              color: PdfColors.blue900,
+            ),
+          ),
+          pw.SizedBox(height: 8),
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              _buildSummaryItem(
+                'Total Questions',
+                '${metrics.totalQuizzes * 100}',
+                PdfColors.blue700,
+              ),
+              _buildSummaryItem(
+                'Correct Answers',
+                '${(metrics.totalQuizzes * 100 - metrics.totalIncorrectAnswers - metrics.totalSkippedQuestions)}',
+                PdfColors.green700,
+              ),
+              _buildSummaryItem(
+                'Incorrect Answers',
+                '${metrics.totalIncorrectAnswers}',
+                PdfColors.red700,
+              ),
+              _buildSummaryItem(
+                'Skipped Questions',
+                '${metrics.totalSkippedQuestions}',
+                PdfColors.orange700,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  pw.Widget _buildSummaryItem(String label, String value, PdfColor color) {
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Text(
+          label,
+          style: pw.TextStyle(
+            fontSize: 10,
+            color: PdfColors.grey700,
+          ),
+        ),
+        pw.SizedBox(height: 4),
+        pw.Text(
+          value,
+          style: pw.TextStyle(
+            fontSize: 14,
+            fontWeight: pw.FontWeight.bold,
+            color: color,
+          ),
+        ),
+      ],
+    );
+  }
+
   pw.Widget _buildRadialGauges(PerformanceMetrics metrics) {
     return pw.Container(
       margin: const pw.EdgeInsets.only(top: 24),
-      child: pw.Row(
-        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+      child: pw.Column(
         children: [
-          _buildRadialGauge(
-            'Overall Progress',
-            metrics.overallScore,
-            _primaryColor,
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              _buildRadialGauge(
+                'Overall Progress',
+                metrics.overallScore,
+                _primaryColor,
+              ),
+              _buildRadialGauge(
+                'Accuracy Rate',
+                metrics.accuracy,
+                _accentColor,
+              ),
+              _buildRadialGauge(
+                'Incorrect Rate',
+                metrics.incorrectRate,
+                PdfColors.red400,
+              ),
+              _buildRadialGauge(
+                'Skipped Rate',
+                metrics.skippedRate,
+                PdfColors.orange400,
+              ),
+            ],
           ),
-          _buildRadialGauge(
-            'Accuracy Rate',
-            metrics.accuracy,
-            _accentColor,
-          ),
+          pw.SizedBox(height: 16),
+          _buildProgressSummary(metrics),
         ],
       ),
     );
@@ -77,14 +168,14 @@ class ReportController {
 
   pw.Widget _buildRadialGauge(String title, double value, PdfColor color) {
     return pw.Container(
-      width: 200,
-      height: 200,
+      width: 140, // Reduced from 200
+      height: 140, // Reduced from 200
       child: pw.Stack(
         alignment: pw.Alignment.center,
         children: [
           pw.Container(
-            width: 180,
-            height: 180,
+            width: 120, // Reduced from 180
+            height: 120, // Reduced from 180
             decoration: pw.BoxDecoration(
               shape: pw.BoxShape.circle,
               color: PdfColors.grey50,
@@ -93,13 +184,13 @@ class ReportController {
           pw.Transform.rotate(
             angle: -1.5708, // -90 degrees in radians
             child: pw.SizedBox(
-              width: 160,
-              height: 160,
+              width: 110, // Reduced from 160
+              height: 110, // Reduced from 160
               child: pw.CircularProgressIndicator(
                 value: value / 100,
                 backgroundColor: PdfColors.grey200,
                 color: color,
-                strokeWidth: 12,
+                strokeWidth: 10, // Reduced from 12
               ),
             ),
           ),
@@ -109,16 +200,17 @@ class ReportController {
               pw.Text(
                 '${value.toStringAsFixed(1)}%',
                 style: pw.TextStyle(
-                  fontSize: 24,
+                  fontSize: 18, // Reduced from 24
                   fontWeight: pw.FontWeight.bold,
                   color: color,
                 ),
               ),
-              pw.SizedBox(height: 4),
+              pw.SizedBox(height: 2), // Reduced from 4
               pw.Text(
                 title,
+                textAlign: pw.TextAlign.center,
                 style: pw.TextStyle(
-                  fontSize: 12,
+                  fontSize: 10, // Reduced from 12
                   color: PdfColors.grey600,
                 ),
               ),
@@ -179,17 +271,14 @@ class ReportController {
               _buildHighlightCard(
                 'Overall Score',
                 '${metrics.overallScore.toStringAsFixed(1)}%',
-                Icons.trending_up,
               ),
               _buildHighlightCard(
                 'Accuracy',
                 '${metrics.accuracy.toStringAsFixed(1)}%',
-                Icons.track_changes,
               ),
               _buildHighlightCard(
                 'Avg. Time',
                 '${metrics.averageTimeTaken.toStringAsFixed(1)}s',
-                Icons.timer,
               ),
             ],
           ),
@@ -198,7 +287,10 @@ class ReportController {
     );
   }
 
-  pw.Widget _buildHighlightCard(String title, String value, IconData icon) {
+  pw.Widget _buildHighlightCard(
+    String title,
+    String value,
+  ) {
     return pw.Container(
       width: 150,
       padding: const pw.EdgeInsets.all(16),
@@ -209,9 +301,6 @@ class ReportController {
       ),
       child: pw.Column(
         children: [
-          pw.Icon(pdfWidgets.IconData(icon.codePoint),
-              size: 24, color: _secondaryColor),
-          pw.SizedBox(height: 8),
           pw.Text(
             title,
             style: pw.TextStyle(
@@ -250,14 +339,46 @@ class ReportController {
               fontWeight: pw.FontWeight.bold,
             ),
           ),
-          pw.SizedBox(height: 12),
-          pw.Row(
-            mainAxisAlignment: pw.MainAxisAlignment.spaceAround,
-            children: [
-              _buildProfileItem('Grade', student.grade),
-              _buildProfileItem('School', student.schoolName),
-              _buildProfileItem('Total Quizzes', quizScores.length.toString()),
-            ],
+          pw.SizedBox(height: 16),
+          pw.Container(
+            padding: const pw.EdgeInsets.all(16),
+            decoration: pw.BoxDecoration(
+              color: PdfColors.grey50,
+              borderRadius: pw.BorderRadius.circular(8),
+              border: pw.Border.all(color: PdfColors.grey200),
+            ),
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Row(
+                  children: [
+                    pw.Text('Name: ',
+                        style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    pw.Text(student.name),
+                  ],
+                ),
+                pw.SizedBox(height: 8),
+                pw.Row(
+                  children: [
+                    pw.Text('Email: ',
+                        style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    pw.Text(student.email),
+                  ],
+                ),
+                pw.SizedBox(height: 12),
+                pw.Divider(),
+                pw.SizedBox(height: 12),
+                pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildProfileItem('Grade', student.grade ?? 'N/A'),
+                    _buildProfileItem('School', student.schoolName ?? 'N/A'),
+                    _buildProfileItem(
+                        'Total Quizzes', quizScores.length.toString()),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -291,26 +412,26 @@ class ReportController {
     return pw.Container(
       decoration: pw.BoxDecoration(
         color: _primaryColor,
-        borderRadius: const pw.BorderRadius.all(pw.Radius.circular(12)),
+        borderRadius:
+            const pw.BorderRadius.vertical(top: pw.Radius.circular(8)),
       ),
       padding: const pw.EdgeInsets.all(24),
-      child: pw.Row(
-        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
-          pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
             children: [
               pw.Text(
-                'STUDENT PERFORMANCE REPORT',
+                'Academic Performance Report',
                 style: pw.TextStyle(
                   color: PdfColors.white,
                   fontSize: 20,
                   fontWeight: pw.FontWeight.bold,
                 ),
               ),
-              pw.SizedBox(height: 8),
               pw.Text(
-                DateFormat('MMMM dd, yyyy').format(DateTime.now()),
+                DateFormat('MMM dd, yyyy').format(DateTime.now()),
                 style: pw.TextStyle(
                   color: PdfColors.white,
                   fontSize: 12,
@@ -318,22 +439,104 @@ class ReportController {
               ),
             ],
           ),
-          pw.Container(
-            width: 60,
-            height: 60,
-            decoration: pw.BoxDecoration(
-              color: PdfColors.white,
-              shape: pw.BoxShape.circle,
+        ],
+      ),
+    );
+  }
+
+  pw.Widget _buildTopPerfomersSection(
+      PerformanceMetrics metrics, List<QuizScoreModel> quizScores) {
+    return pw.Container(
+      margin: const pw.EdgeInsets.only(top: 24),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text(
+            'Performance Highlights',
+            style: pw.TextStyle(
+              color: _primaryColor,
+              fontSize: 18,
+              fontWeight: pw.FontWeight.bold,
             ),
-            child: pw.Center(
-              child: pw.Text(
-                student.name.substring(0, 1).toUpperCase(),
-                style: pw.TextStyle(
-                  fontSize: 24,
-                  color: _primaryColor,
-                  fontWeight: pw.FontWeight.bold,
+          ),
+          pw.SizedBox(height: 16),
+          pw.Row(
+            children: [
+              pw.Expanded(
+                child: _buildTopPerformerCard(
+                  title: 'Top Quiz',
+                  content: [
+                    '${metrics.topPerformingQuiz.quizTitle}',
+                    'Score: ${metrics.topPerformingQuiz.score}/${metrics.topPerformingQuiz.totalScore}',
+                    'Category: ${metrics.topPerformingQuiz.categoryName}',
+                  ],
+                  color: _secondaryColor,
                 ),
               ),
+              pw.SizedBox(width: 16),
+              pw.Expanded(
+                child: _buildTopPerformerCard(
+                  title: 'Strongest Category',
+                  content: [
+                    metrics.topPerformingCategory,
+                    'Average Score: ${_calculateCategoryAverage(metrics.topPerformingCategory, quizScores).toStringAsFixed(1)}%',
+                    'Total Attempts: ${_countCategoryAttempts(metrics.topPerformingCategory, quizScores)}',
+                  ],
+                  color: _successColor,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  pw.Widget _buildTopPerformerCard({
+    required String title,
+    required List<String> content,
+    required PdfColor color,
+  }) {
+    return pw.Container(
+      decoration: pw.BoxDecoration(
+        color: PdfColors.white,
+        borderRadius: pw.BorderRadius.circular(8),
+        border: pw.Border.all(color: color),
+      ),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Container(
+            width: double.infinity,
+            padding: const pw.EdgeInsets.all(12),
+            decoration: pw.BoxDecoration(
+              color: color,
+              borderRadius: const pw.BorderRadius.only(
+                topLeft: pw.Radius.circular(8),
+                topRight: pw.Radius.circular(8),
+              ),
+            ),
+            child: pw.Text(
+              title,
+              style: pw.TextStyle(
+                color: PdfColors.white,
+                fontWeight: pw.FontWeight.bold,
+              ),
+            ),
+          ),
+          pw.Padding(
+            padding: const pw.EdgeInsets.all(16),
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: content
+                  .map((item) => pw.Padding(
+                        padding: const pw.EdgeInsets.only(bottom: 8),
+                        child: pw.Text(
+                          item,
+                          style: const pw.TextStyle(fontSize: 12),
+                        ),
+                      ))
+                  .toList(),
             ),
           ),
         ],
@@ -341,7 +544,7 @@ class ReportController {
     );
   }
 
-  pw.Widget _buildQuizPerformanceTable(List<QuizScoreModel> scores) {
+  pw.Widget _buildQuizPerformanceCards(List<QuizScoreModel> scores) {
     return pw.Container(
       margin: const pw.EdgeInsets.only(top: 24),
       child: pw.Column(
@@ -356,72 +559,166 @@ class ReportController {
             ),
           ),
           pw.SizedBox(height: 12),
-          pw.TableHelper.fromTextArray(
-            border: null,
-            cellAlignment: pw.Alignment.centerLeft,
-            headerDecoration: pw.BoxDecoration(
-              color: _primaryColor,
-              borderRadius:
-                  const pw.BorderRadius.vertical(top: pw.Radius.circular(4)),
-            ),
-            headerStyle: pw.TextStyle(
-              color: PdfColors.white,
-              fontWeight: pw.FontWeight.bold,
-            ),
-            headerPadding: const pw.EdgeInsets.all(12),
-            cellPadding: const pw.EdgeInsets.all(8),
-            cellAlignments: {
-              0: pw.Alignment.centerLeft,
-              1: pw.Alignment.centerLeft,
-              2: pw.Alignment.center,
-              3: pw.Alignment.center,
-              4: pw.Alignment.center,
-            },
-            data: [
-              ['Quiz Title', 'Category', 'Score', 'Time', 'Performance'],
-              ...scores.map((score) {
-                final performance = (score.score / score.totalScore) * 100;
-                return [
-                  score.quizTitle ?? 'N/A',
-                  score.categoryName ?? 'General',
-                  '${score.score}/${score.totalScore}',
-                  '${score.timeTaken}s',
-                  pw.Row(
-                    mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                    children: [
-                      pw.Text('${performance.toStringAsFixed(1)}%'),
-                      pw.Container(
-                        width: 60,
-                        height: 8,
-                        decoration: pw.BoxDecoration(
-                          color: PdfColors.grey200,
-                          borderRadius: pw.BorderRadius.circular(4),
-                        ),
-                        child: pw.Stack(
-                          children: [
-                            pw.Container(
-                              width: 60 * (performance / 100),
-                              decoration: pw.BoxDecoration(
-                                color: _getPerformanceColor(performance),
-                                borderRadius: pw.BorderRadius.circular(4),
+          ...scores.map((score) {
+            final totalQuestions = score.totalScore;
+            final correctAnswers = score.score;
+            final incorrectAnswers = score.incorrectAnswers;
+            final skippedQuestions =
+                totalQuestions - (correctAnswers + incorrectAnswers);
+            final performance = (correctAnswers / totalQuestions) * 100;
+            final accuracy =
+                (correctAnswers / (correctAnswers + incorrectAnswers)) * 100;
+            final passFailStatus = performance >= 70 ? 'Pass' : 'Fail';
+            final formattedDate = score.createdAt != null
+                ? '${score.createdAt!.day}/${score.createdAt!.month}/${score.createdAt!.year}'
+                : 'N/A';
+            return pw.Container(
+              margin: const pw.EdgeInsets.only(bottom: 12),
+              decoration: pw.BoxDecoration(
+                border: pw.Border.all(color: PdfColors.grey300),
+                borderRadius: const pw.BorderRadius.all(pw.Radius.circular(8)),
+              ),
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  // Header section
+                  pw.Container(
+                    padding: const pw.EdgeInsets.all(12),
+                    decoration: pw.BoxDecoration(
+                      color: PdfColors.blue50,
+                      borderRadius: const pw.BorderRadius.vertical(
+                        top: pw.Radius.circular(8),
+                      ),
+                    ),
+                    child: pw.Row(
+                      mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                      children: [
+                        pw.Expanded(
+                          child: pw.Column(
+                            crossAxisAlignment: pw.CrossAxisAlignment.start,
+                            children: [
+                              pw.Text(
+                                score.quizTitle ?? 'N/A',
+                                style: pw.TextStyle(
+                                  fontSize: 14,
+                                  color: PdfColors.blue900,
+                                  fontWeight: pw.FontWeight.bold,
+                                ),
                               ),
+                              pw.SizedBox(height: 4),
+                              pw.Row(
+                                children: [
+                                  pw.Text(
+                                    score.categoryName ?? 'General',
+                                    style: pw.TextStyle(
+                                      fontSize: 12,
+                                      color: PdfColors.blue700,
+                                    ),
+                                  ),
+                                  pw.SizedBox(width: 12),
+                                  pw.Text(
+                                    'Attempted: $formattedDate',
+                                    style: pw.TextStyle(
+                                      fontSize: 12,
+                                      color: PdfColors.grey700,
+                                      fontStyle: pw.FontStyle.italic,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        pw.Container(
+                          padding: const pw.EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: pw.BoxDecoration(
+                            color: passFailStatus == 'Pass'
+                                ? PdfColors.green100
+                                : PdfColors.red100,
+                            borderRadius: const pw.BorderRadius.all(
+                              pw.Radius.circular(12),
                             ),
+                          ),
+                          child: pw.Text(
+                            passFailStatus,
+                            style: pw.TextStyle(
+                              color: passFailStatus == 'Pass'
+                                  ? PdfColors.green700
+                                  : PdfColors.red700,
+                              fontWeight: pw.FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Stats section
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(12),
+                    child: pw.Column(
+                      children: [
+                        pw.Row(
+                          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                          children: [
+                            _buildStatItem(
+                                'Total Questions', '$totalQuestions'),
+                            _buildStatItem(
+                                'Correct Answers', '$correctAnswers'),
+                            _buildStatItem('Incorrect', '$incorrectAnswers'),
+                            _buildStatItem('Skipped', '$skippedQuestions'),
                           ],
                         ),
-                      ),
-                    ],
+                        pw.SizedBox(height: 8),
+                        pw.Row(
+                          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                          children: [
+                            _buildStatItem('Final Score',
+                                '${performance.toStringAsFixed(1)}%'),
+                            _buildStatItem(
+                                'Accuracy', '${accuracy.toStringAsFixed(1)}%'),
+                            _buildStatItem('Time Taken', '${score.timeTaken}s'),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ];
-              }),
-            ],
-          ),
+                ],
+              ),
+            );
+          }).toList(),
         ],
       ),
     );
   }
 
+  pw.Widget _buildStatItem(String label, String value) {
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Text(
+          label,
+          style: pw.TextStyle(
+            fontSize: 10,
+            color: PdfColors.grey600,
+          ),
+        ),
+        pw.SizedBox(height: 2),
+        pw.Text(
+          value,
+          style: pw.TextStyle(
+            fontSize: 12,
+            fontWeight: pw.FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+  }
+
   pw.Widget _buildCategoryPerformance(List<QuizScoreModel> scores) {
-    final categoryAverages = _calculateCategoryAverages(scores);
+    final categoryStats = _calculateDetailedCategoryStats(scores);
 
     return pw.Container(
       margin: const pw.EdgeInsets.only(top: 24),
@@ -437,167 +734,197 @@ class ReportController {
             ),
           ),
           pw.SizedBox(height: 12),
-          pw.Column(
-            children: categoryAverages.entries.map((entry) {
-              return pw.Container(
-                margin: const pw.EdgeInsets.only(bottom: 8),
-                child: pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
-                    pw.Row(
-                      mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                      children: [
-                        pw.Text(
-                          entry.key,
-                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+          ...categoryStats.entries.map((entry) {
+            final category = entry.key;
+            final stats = entry.value;
+            final passRate = (stats.passCount / stats.totalAttempts) * 100;
+
+            return pw.Container(
+              margin: const pw.EdgeInsets.only(bottom: 16),
+              padding: const pw.EdgeInsets.all(12),
+              decoration: pw.BoxDecoration(
+                border: pw.Border.all(color: PdfColors.grey300),
+                borderRadius: const pw.BorderRadius.all(pw.Radius.circular(8)),
+              ),
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  // Category Header
+                  pw.Row(
+                    mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                    children: [
+                      pw.Text(
+                        category,
+                        style: pw.TextStyle(
+                          fontSize: 14,
+                          color: PdfColors.blue900,
+                          fontWeight: pw.FontWeight.bold,
                         ),
-                        pw.Text('${entry.value.toStringAsFixed(1)}%'),
+                      ),
+                      pw.Text(
+                        '${stats.totalAttempts} Attempts',
+                        style: pw.TextStyle(
+                          fontSize: 12,
+                          color: PdfColors.grey700,
+                        ),
+                      ),
+                    ],
+                  ),
+                  pw.SizedBox(height: 8),
+
+                  // Performance Bar
+                  pw.Container(
+                    height: 16,
+                    decoration: pw.BoxDecoration(
+                      color: PdfColors.grey200,
+                      borderRadius: pw.BorderRadius.circular(8),
+                    ),
+                    child: pw.Stack(
+                      children: [
+                        pw.Container(
+                          width: 400 * (stats.averageScore / 100),
+                          decoration: pw.BoxDecoration(
+                            color: _getPerformanceColor(stats.averageScore),
+                            borderRadius: pw.BorderRadius.circular(8),
+                          ),
+                        ),
                       ],
                     ),
-                    pw.SizedBox(height: 4),
-                    pw.Container(
-                      height: 12,
-                      decoration: pw.BoxDecoration(
-                        color: PdfColors.grey200,
-                        borderRadius: pw.BorderRadius.circular(6),
+                  ),
+                  pw.SizedBox(height: 8),
+
+                  // Detailed Stats Grid
+                  pw.Row(
+                    mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildStatBox(
+                        'Average Score',
+                        '${stats.averageScore.toStringAsFixed(1)}%',
+                        PdfColors.blue700,
                       ),
-                      child: pw.Stack(
-                        children: [
-                          pw.Container(
-                            width: 200 * (entry.value / 100),
-                            decoration: pw.BoxDecoration(
-                              color: _getPerformanceColor(entry.value),
-                              borderRadius: pw.BorderRadius.circular(6),
-                            ),
-                          ),
-                        ],
+                      _buildStatBox(
+                        'Highest Score',
+                        '${stats.highestScore.toStringAsFixed(1)}%',
+                        PdfColors.green700,
                       ),
-                    ),
-                  ],
-                ),
-              );
-            }).toList(),
-          ),
+                      _buildStatBox(
+                        'Lowest Score',
+                        '${stats.lowestScore.toStringAsFixed(1)}%',
+                        PdfColors.red700,
+                      ),
+                    ],
+                  ),
+                  pw.SizedBox(height: 8),
+                  pw.Row(
+                    mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildStatBox(
+                        'Pass Rate',
+                        '${passRate.toStringAsFixed(1)}%',
+                        PdfColors.blue700,
+                      ),
+                      _buildStatBox(
+                        'Passed/Total',
+                        '${stats.passCount}/${stats.totalAttempts}',
+                        PdfColors.grey700,
+                      ),
+                      _buildStatBox(
+                        'Avg Time',
+                        '${stats.averageTimeTaken.toStringAsFixed(0)}s',
+                        PdfColors.grey700,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
         ],
       ),
     );
   }
 
-  pw.Widget _buildRecommendationsSection(PerformanceMetrics metrics) {
+  pw.Widget _buildStatBox(String label, String value, PdfColor valueColor) {
     return pw.Container(
-      margin: const pw.EdgeInsets.only(top: 24),
+      width: 120,
+      padding: const pw.EdgeInsets.all(8),
+      decoration: pw.BoxDecoration(
+        color: PdfColors.grey100,
+        borderRadius: pw.BorderRadius.circular(4),
+      ),
       child: pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
           pw.Text(
-            'Personalized Recommendations',
+            label,
             style: pw.TextStyle(
-              fontSize: 18,
-              color: _primaryColor,
-              fontWeight: pw.FontWeight.bold,
+              fontSize: 10,
+              color: PdfColors.grey700,
             ),
           ),
-          pw.SizedBox(height: 12),
-          pw.Row(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
-            children: [
-              pw.Expanded(
-                child: pw.Container(
-                  padding: const pw.EdgeInsets.all(16),
-                  decoration: pw.BoxDecoration(
-                    color: PdfColors.green50,
-                    borderRadius: pw.BorderRadius.circular(8),
-                  ),
-                  child: pw.Column(
-                    crossAxisAlignment: pw.CrossAxisAlignment.start,
-                    children: [
-                      pw.Row(
-                        children: [
-                          pw.SizedBox(width: 8),
-                          pw.Text(
-                            'Strengths',
-                            style: pw.TextStyle(
-                              color: PdfColors.green600,
-                              fontWeight: pw.FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      pw.SizedBox(height: 8),
-                      pw.Text(
-                        '• Strong performance in ${metrics.topPerformingCategory}',
-                        style: pw.TextStyle(fontSize: 12),
-                      ),
-                      if (metrics.overallScore > 75)
-                        pw.Text(
-                          '• Excellent overall understanding of core concepts',
-                          style: pw.TextStyle(fontSize: 12),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-              pw.SizedBox(width: 16),
-              pw.Expanded(
-                child: pw.Container(
-                  padding: const pw.EdgeInsets.all(16),
-                  decoration: pw.BoxDecoration(
-                    color: PdfColors.orange50,
-                    borderRadius: pw.BorderRadius.circular(8),
-                  ),
-                  child: pw.Column(
-                    crossAxisAlignment: pw.CrossAxisAlignment.start,
-                    children: [
-                      pw.Row(
-                        children: [
-                          pw.SizedBox(width: 8),
-                          pw.Text(
-                            'Areas for Improvement',
-                            style: pw.TextStyle(
-                              color: PdfColors.orange600,
-                              fontWeight: pw.FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      pw.SizedBox(height: 8),
-                      ...metrics.improvementNeededCategories.map((category) =>
-                          pw.Text('• Focus on $category',
-                              style: pw.TextStyle(fontSize: 12))),
-                      if (metrics.averageTimeTaken > 120)
-                        pw.Text(
-                          '• Practice time management during quizzes',
-                          style: pw.TextStyle(fontSize: 12),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+          pw.SizedBox(height: 2),
+          pw.Text(
+            value,
+            style: pw.TextStyle(
+              fontSize: 12,
+              color: valueColor,
+              fontWeight: pw.FontWeight.bold,
+            ),
           ),
         ],
       ),
     );
   }
 
-// Helper methods
-  Map<String, double> _calculateCategoryAverages(List<QuizScoreModel> scores) {
-    final categoryMap = <String, List<double>>{};
-
-    for (final score in scores) {
-      final category = score.categoryName ?? 'General';
-      final performance = (score.score / score.totalScore) * 100;
-      categoryMap.putIfAbsent(category, () => []).add(performance);
-    }
-
-    return categoryMap.map((key, value) =>
-        MapEntry(key, value.reduce((a, b) => a + b) / value.length));
+  PdfColor _getPerformanceColor(double value) {
+    if (value >= 90) return PdfColors.green;
+    if (value >= 80) return PdfColors.lightGreen;
+    if (value >= 70) return PdfColors.yellow;
+    if (value >= 60) return PdfColors.orange;
+    return PdfColors.red;
   }
 
-  PdfColor _getPerformanceColor(double percentage) {
-    if (percentage >= 80) return PdfColors.green400;
-    if (percentage >= 60) return PdfColors.orange400;
-    return PdfColors.red400;
+// Helper methods
+
+  Map<String, CategoryStats> _calculateDetailedCategoryStats(
+      List<QuizScoreModel> scores) {
+    final categoryMap = <String, CategoryStats>{};
+
+    // Group scores by category
+    final groupedScores = <String, List<QuizScoreModel>>{};
+    for (final score in scores) {
+      final category = score.categoryName ?? 'General';
+      groupedScores.putIfAbsent(category, () => []).add(score);
+    }
+
+    // Calculate detailed stats for each category
+    groupedScores.forEach((category, categoryScores) {
+      final performances =
+          categoryScores.map((s) => (s.score / s.totalScore) * 100).toList();
+
+      final averageScore =
+          performances.reduce((a, b) => a + b) / performances.length;
+      final highestScore = performances.reduce((a, b) => a > b ? a : b);
+      final lowestScore = performances.reduce((a, b) => a < b ? a : b);
+      final totalAttempts = categoryScores.length;
+      final passCount = categoryScores
+          .where((s) => (s.score / s.totalScore) * 100 >= 70)
+          .length;
+      final averageTimeTaken =
+          categoryScores.map((s) => s.timeTaken).reduce((a, b) => a + b) /
+              categoryScores.length;
+
+      categoryMap[category] = CategoryStats(
+        averageScore: averageScore,
+        highestScore: highestScore,
+        lowestScore: lowestScore,
+        totalAttempts: totalAttempts,
+        passCount: passCount,
+        averageTimeTaken: averageTimeTaken,
+      );
+    });
+
+    return categoryMap;
   }
 
   PerformanceMetrics _calculatePerformanceMetrics(List<QuizScoreModel> scores) {
@@ -611,10 +938,19 @@ class ReportController {
     final totalIncorrectAnswers =
         scores.fold(0, (sum, score) => sum + score.incorrectAnswers);
 
+    // Calculate skipped questions
+    final totalSkippedQuestions = scores.fold(
+        0,
+        (sum, score) =>
+            sum + (score.totalScore - (score.score + score.incorrectAnswers)));
+
     final overallScore = (totalCorrectAnswers / totalQuestions) * 100;
     final accuracy =
         (totalCorrectAnswers / (totalCorrectAnswers + totalIncorrectAnswers)) *
             100;
+    final incorrectRate = (totalIncorrectAnswers / totalQuestions) * 100;
+    final skippedRate = (totalSkippedQuestions / totalQuestions) * 100;
+
     final averageTimeTaken =
         scores.map((s) => s.timeTaken).reduce((a, b) => a + b) / totalQuizzes;
 
@@ -626,6 +962,10 @@ class ReportController {
       topPerformingCategory: _findTopPerformingCategory(scores),
       improvementNeededCategories: _findImprovementNeededCategories(scores),
       topPerformingQuiz: _findTopPerformingQuiz(scores),
+      incorrectRate: incorrectRate,
+      skippedRate: skippedRate,
+      totalIncorrectAnswers: totalIncorrectAnswers,
+      totalSkippedQuestions: totalSkippedQuestions,
     );
   }
 
@@ -657,553 +997,17 @@ class ReportController {
         .toList();
   }
 
-  pw.Widget _buildReportHeader(UserModel student, PerformanceMetrics metrics) {
-    return pw.Container(
-      decoration: pw.BoxDecoration(
-        gradient: pw.LinearGradient(
-          colors: [
-            PdfColors.blue400,
-            PdfColors.blue600,
-          ],
-          begin: pw.Alignment.topLeft,
-          end: pw.Alignment.bottomRight,
-        ),
-        borderRadius: pw.BorderRadius.circular(15),
-      ),
-      padding: const pw.EdgeInsets.all(20),
-      child: pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
-        children: [
-          pw.Row(
-            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-            children: [
-              pw.Text(
-                'Student Performance Report',
-                style: pw.TextStyle(
-                  fontSize: 24,
-                  color: PdfColors.white,
-                  fontWeight: pw.FontWeight.bold,
-                ),
-              ),
-              pw.Text(
-                DateFormat('MMMM dd, yyyy').format(DateTime.now()),
-                style: pw.TextStyle(
-                  color: PdfColors.white,
-                  fontSize: 14,
-                ),
-              ),
-            ],
-          ),
-          pw.SizedBox(height: 15),
-          pw.Row(
-            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-            children: [
-              pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
-                  pw.Text(
-                    student.name,
-                    style: pw.TextStyle(
-                      fontSize: 20,
-                      color: PdfColors.white,
-                      fontWeight: pw.FontWeight.bold,
-                    ),
-                  ),
-                  pw.Text(
-                    'Overall Performance: ${metrics.overallScore.toStringAsFixed(1)}%',
-                    style: pw.TextStyle(
-                      color: PdfColors.white,
-                      fontSize: 16,
-                    ),
-                  ),
-                ],
-              ),
-              pw.Container(
-                padding: const pw.EdgeInsets.all(10),
-                decoration: pw.BoxDecoration(
-                  color: PdfColor.fromInt(0x88FFFFFF),
-                  borderRadius: pw.BorderRadius.circular(10),
-                ),
-                child: pw.Text(
-                  'Top Category: ${metrics.topPerformingCategory}',
-                  style: pw.TextStyle(
-                    color: PdfColors.white,
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
+  double _calculateCategoryAverage(
+      String category, List<QuizScoreModel> scores) {
+    final categoryScores = scores.where((s) => s.categoryName == category);
+    if (categoryScores.isEmpty) return 0;
+    return (categoryScores.fold(0, (sum, s) => sum + s.score) /
+            categoryScores.fold(0, (sum, s) => sum + s.totalScore)) *
+        100;
   }
 
-  pw.Widget _buildStudentInformationSection(UserModel? student) {
-    // Check if student is null
-    if (student == null) {
-      return pw.Container(); // Return empty container if no student data
-    }
-
-    return pw.Container(
-      margin: const pw.EdgeInsets.symmetric(vertical: 20),
-      decoration: pw.BoxDecoration(
-        border: pw.Border.all(color: PdfColors.grey300),
-        borderRadius: pw.BorderRadius.circular(10),
-      ),
-      child: pw.Padding(
-        padding: const pw.EdgeInsets.all(15),
-        child: pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          children: [
-            pw.Text(
-              'Student Profile',
-              style: pw.TextStyle(
-                fontSize: 18,
-                fontWeight: pw.FontWeight.bold,
-                color: PdfColors.blue600,
-              ),
-            ),
-            pw.SizedBox(height: 10),
-            pw.GridView(
-              crossAxisCount: 2,
-              childAspectRatio: 4,
-              children: [
-                _buildDetailRow('Name', student.name ?? 'N/A'),
-                _buildDetailRow('User ID', student.id ?? 'N/A'),
-                _buildDetailRow('Grade', student.grade ?? 'N/A'),
-                _buildDetailRow('School', student.schoolName ?? 'N/A'),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  pw.Widget _buildDetailRow(String label, String value) {
-    return pw.Row(
-      children: [
-        pw.Text(
-          '$label: ',
-          style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-        ),
-        pw.Text(value),
-      ],
-    );
-  }
-
-  pw.Widget _buildPerformanceSummarySection(PerformanceMetrics metrics) {
-    return pw.Container(
-      margin: const pw.EdgeInsets.symmetric(vertical: 20),
-      decoration: pw.BoxDecoration(
-        color: PdfColors.grey100,
-        borderRadius: pw.BorderRadius.circular(10),
-      ),
-      child: pw.Padding(
-        padding: const pw.EdgeInsets.all(15),
-        child: pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          children: [
-            pw.Text(
-              'Performance Overview',
-              style: pw.TextStyle(
-                fontSize: 18,
-                fontWeight: pw.FontWeight.bold,
-                color: PdfColors.blue600,
-              ),
-            ),
-            pw.SizedBox(height: 15),
-            pw.Row(
-              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-              children: [
-                _buildPerformanceCard('Total Quizzes',
-                    metrics.totalQuizzes.toString(), PdfColors.blue200),
-                _buildPerformanceCard(
-                    'Overall Score',
-                    '${metrics.overallScore.toStringAsFixed(1)}%',
-                    PdfColors.green200),
-                _buildPerformanceCard(
-                    'Accuracy',
-                    '${metrics.accuracy.toStringAsFixed(1)}%',
-                    PdfColors.orange200),
-              ],
-            ),
-            pw.SizedBox(height: 15),
-            pw.Row(
-              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-              children: [
-                pw.Text(
-                  'Top Performing Category: ${metrics.topPerformingCategory}',
-                  style: const pw.TextStyle(fontSize: 12),
-                ),
-                pw.Text(
-                  'Average Quiz Time: ${metrics.averageTimeTaken.toStringAsFixed(1)} sec',
-                  style: const pw.TextStyle(fontSize: 12),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  pw.Widget _buildPerformanceCard(String title, String value, PdfColor color) {
-    return pw.Container(
-      width: 100,
-      padding: const pw.EdgeInsets.all(10),
-      decoration: pw.BoxDecoration(
-        color: color,
-        borderRadius: pw.BorderRadius.circular(10),
-      ),
-      child: pw.Column(
-        children: [
-          pw.Text(title, style: const pw.TextStyle(fontSize: 12)),
-          pw.SizedBox(height: 5),
-          pw.Text(
-            value,
-            style: pw.TextStyle(
-              fontSize: 16,
-              fontWeight: pw.FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  pw.Widget _buildQuizPerformanceDetailsSection(List<QuizScoreModel> scores) {
-    return pw.Container(
-      margin: const pw.EdgeInsets.symmetric(vertical: 20),
-      child: pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
-        children: [
-          pw.Text(
-            'Detailed Quiz Performance',
-            style: pw.TextStyle(
-              fontSize: 18,
-              fontWeight: pw.FontWeight.bold,
-              color: PdfColors.blue600,
-            ),
-          ),
-          pw.SizedBox(height: 10),
-          pw.Table(
-            border: pw.TableBorder.all(color: PdfColors.grey300),
-            children: [
-              _buildTableHeader(
-                  ['Quiz', 'Category', 'Score', 'Time Taken', 'Performance']),
-              ...scores
-                  .map((score) => _buildQuizPerformanceRow(score))
-                  .toList(),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  pw.Widget _buildPerformanceByTopicSection(List<QuizScoreModel> scores) {
-    final categoryPerformance = <String, double>{};
-
-    for (var score in scores) {
-      final categoryName = score.categoryName ?? 'Uncategorized';
-      final performance = (score.score / score.totalScore) * 100;
-
-      categoryPerformance[categoryName] =
-          (categoryPerformance[categoryName] ?? 0) + performance;
-    }
-
-    return pw.Container(
-      margin: const pw.EdgeInsets.symmetric(vertical: 20),
-      child: pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
-        children: [
-          pw.Text(
-            'Performance by Category',
-            style: pw.TextStyle(
-              fontSize: 18,
-              fontWeight: pw.FontWeight.bold,
-              color: PdfColors.blue600,
-            ),
-          ),
-          pw.SizedBox(height: 10),
-          pw.Table(
-            border: pw.TableBorder.all(color: PdfColors.grey300),
-            children: [
-              _buildTableHeader(['Category', 'Average Performance']),
-              ...categoryPerformance.entries
-                  .map((entry) => _buildCategoryPerformanceRow(
-                      entry.key, entry.value / scores.length))
-                  .toList(),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  pw.Widget _buildAchievementsAndRecommendationsSection(
-      PerformanceMetrics metrics, List<QuizScoreModel> scores) {
-    final topQuiz = metrics.topPerformingQuiz;
-
-    return pw.Container(
-      margin: const pw.EdgeInsets.symmetric(vertical: 20),
-      decoration: pw.BoxDecoration(
-        color: PdfColors.grey100,
-        borderRadius: pw.BorderRadius.circular(10),
-      ),
-      child: pw.Padding(
-        padding: const pw.EdgeInsets.all(15),
-        child: pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          children: [
-            pw.Text(
-              'Achievements & Recommendations',
-              style: pw.TextStyle(
-                fontSize: 18,
-                fontWeight: pw.FontWeight.bold,
-                color: PdfColors.blue600,
-              ),
-            ),
-            pw.SizedBox(height: 15),
-            pw.Text(
-              'Top Performing Quiz Highlight',
-              style: pw.TextStyle(
-                fontSize: 14,
-                fontWeight: pw.FontWeight.bold,
-              ),
-            ),
-            pw.SizedBox(height: 10),
-            pw.Row(
-              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-              children: [
-                pw.Text(
-                  'Quiz: ${topQuiz.quizTitle ?? "N/A"}',
-                  style: const pw.TextStyle(fontSize: 12),
-                ),
-                pw.Text(
-                  'Score: ${((topQuiz.score / topQuiz.totalScore) * 100).toStringAsFixed(1)}%',
-                  style: const pw.TextStyle(fontSize: 12),
-                ),
-              ],
-            ),
-            pw.SizedBox(height: 15),
-            pw.Text('Areas for Improvement',
-                style: pw.TextStyle(
-                  fontSize: 14,
-                )),
-            pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: metrics.improvementNeededCategories.isEmpty
-                  ? [
-                      pw.Text(
-                        'Congratulations! No major improvement areas identified.',
-                        style: pw.TextStyle(
-                          color: PdfColors.green600,
-                          fontWeight: pw.FontWeight.bold,
-                        ),
-                      )
-                    ]
-                  : [
-                      pw.Text(
-                        'Categories Needing Attention:',
-                        style: pw.TextStyle(
-                          fontSize: 12,
-                          fontWeight: pw.FontWeight.bold,
-                        ),
-                      ),
-                      ...metrics.improvementNeededCategories.map(
-                        (category) => pw.Text(
-                          '• $category',
-                          style: const pw.TextStyle(fontSize: 10),
-                        ),
-                      ),
-                    ],
-            ),
-            pw.SizedBox(height: 15),
-            pw.Text(
-              'Personalized Recommendations',
-              style: pw.TextStyle(
-                fontSize: 14,
-                fontWeight: pw.FontWeight.bold,
-              ),
-            ),
-            pw.SizedBox(height: 10),
-            pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: _generatePersonalizedRecommendations(metrics),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  List<pw.Widget> _generatePersonalizedRecommendations(
-      PerformanceMetrics metrics) {
-    final recommendations = <pw.Widget>[];
-
-    // Overall performance recommendations
-    if (metrics.overallScore < 60) {
-      recommendations.add(
-        pw.Text(
-          '• Consider additional study support or tutoring to improve overall performance.',
-          style: const pw.TextStyle(fontSize: 10),
-        ),
-      );
-    } else if (metrics.overallScore < 75) {
-      recommendations.add(
-        pw.Text(
-          '• Focus on consistent practice and targeted review of challenging topics.',
-          style: const pw.TextStyle(fontSize: 10),
-        ),
-      );
-    } else {
-      recommendations.add(
-        pw.Text(
-          '• Maintain your excellent performance and continue challenging yourself.',
-          style: const pw.TextStyle(fontSize: 10),
-        ),
-      );
-    }
-
-    // Time management recommendations
-    if (metrics.averageTimeTaken > 120) {
-      recommendations.add(
-        pw.Text(
-          '• Work on time management skills during quizzes.',
-          style: const pw.TextStyle(fontSize: 10),
-        ),
-      );
-    }
-
-    // Category-specific recommendations
-    if (metrics.improvementNeededCategories.isNotEmpty) {
-      recommendations.add(
-        pw.Text(
-          '• Create focused study plans for ${metrics.improvementNeededCategories.join(', ')}.',
-          style: const pw.TextStyle(fontSize: 10),
-        ),
-      );
-    }
-
-    return recommendations;
-  }
-
-  pw.TableRow _buildQuizPerformanceRow(QuizScoreModel score) {
-    final performance = (score.score / score.totalScore) * 100;
-    PdfColor performanceColor;
-
-    if (performance >= 80) {
-      performanceColor = PdfColors.green200;
-    } else if (performance >= 60) {
-      performanceColor = PdfColors.yellow200;
-    } else {
-      performanceColor = PdfColors.red200;
-    }
-
-    return pw.TableRow(
-      children: [
-        _buildTableCell(score.quizTitle ?? 'N/A'),
-        _buildTableCell(score.categoryName ?? 'N/A'),
-        _buildTableCell('${score.score}/${score.totalScore}'),
-        _buildTableCell('${score.timeTaken} sec'),
-        pw.Container(
-          color: performanceColor,
-          child: pw.Padding(
-            padding: const pw.EdgeInsets.all(8),
-            child: pw.Text(
-              '${performance.toStringAsFixed(1)}%',
-              textAlign: pw.TextAlign.center,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  pw.TableRow _buildCategoryPerformanceRow(
-      String category, double performance) {
-    PdfColor performanceColor;
-
-    if (performance >= 80) {
-      performanceColor = PdfColors.green200;
-    } else if (performance >= 60) {
-      performanceColor = PdfColors.yellow200;
-    } else {
-      performanceColor = PdfColors.red200;
-    }
-
-    return pw.TableRow(
-      children: [
-        _buildTableCell(category),
-        pw.Container(
-          color: performanceColor,
-          child: pw.Padding(
-            padding: const pw.EdgeInsets.all(8),
-            child: pw.Text(
-              '${performance.toStringAsFixed(1)}%',
-              textAlign: pw.TextAlign.center,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  pw.Widget _buildReportFooter(pw.Context context) {
-    return pw.Container(
-      decoration: const pw.BoxDecoration(
-        border: pw.Border(
-          top: pw.BorderSide(color: PdfColors.grey300),
-        ),
-      ),
-      padding: const pw.EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-      child: pw.Row(
-        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-        children: [
-          pw.Text(
-            'Generated by Quiz Performance Tracker',
-            style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey600),
-          ),
-          pw.Text(
-            'Page ${context.pageNumber} of ${context.pagesCount}',
-            style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey600),
-          ),
-        ],
-      ),
-    );
-  }
-// Add these methods to the existing EnhancedReportController class
-
-  pw.Widget _buildTableCell(String text) {
-    return pw.Padding(
-      padding: const pw.EdgeInsets.all(8),
-      child: pw.Text(
-        text,
-        textAlign: pw.TextAlign.center,
-      ),
-    );
-  }
-
-  pw.TableRow _buildTableHeader(List<String> headers) {
-    return pw.TableRow(
-      decoration: pw.BoxDecoration(color: PdfColors.grey200),
-      children: headers.map((header) => _buildTableHeaderCell(header)).toList(),
-    );
-  }
-
-  pw.Widget _buildTableHeaderCell(String text) {
-    return pw.Padding(
-      padding: const pw.EdgeInsets.all(8),
-      child: pw.Text(
-        text,
-        style: pw.TextStyle(
-          fontWeight: pw.FontWeight.bold,
-        ),
-      ),
-    );
+  int _countCategoryAttempts(String category, List<QuizScoreModel> scores) {
+    return scores.where((s) => s.categoryName == category).length;
   }
 
   void _downloadPDF(Uint8List pdfBytes) {
@@ -1219,49 +1023,5 @@ class ReportController {
     anchor.click();
     html.document.body?.children.remove(anchor);
     html.Url.revokeObjectUrl(url);
-  }
-}
-
-// Update PerformanceMetrics to include top performing quiz
-class PerformanceMetrics {
-  final int totalQuizzes;
-  final double overallScore;
-  final double accuracy;
-  final double averageTimeTaken;
-  final String topPerformingCategory;
-  final List<String> improvementNeededCategories;
-  final QuizScoreModel topPerformingQuiz;
-
-  PerformanceMetrics({
-    required this.totalQuizzes,
-    required this.overallScore,
-    required this.accuracy,
-    required this.averageTimeTaken,
-    required this.topPerformingCategory,
-    required this.improvementNeededCategories,
-    required this.topPerformingQuiz,
-  });
-
-  factory PerformanceMetrics.empty() {
-    return PerformanceMetrics(
-      totalQuizzes: 0,
-      overallScore: 0,
-      accuracy: 0,
-      averageTimeTaken: 0,
-      topPerformingCategory: 'N/A',
-      improvementNeededCategories: [],
-      topPerformingQuiz: QuizScoreModel(
-        quizTitle: 'N/A',
-        categoryName: 'N/A',
-        score: 0,
-        totalScore: 1,
-        incorrectAnswers: 0,
-        timeTaken: 0,
-        id: '',
-        userId: '',
-        quizId: '',
-        categoryId: '',
-      ),
-    );
   }
 }

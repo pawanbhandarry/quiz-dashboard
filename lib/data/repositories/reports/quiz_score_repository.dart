@@ -16,8 +16,7 @@ class QuizScoreRepository {
     print('Fetching scores for quiz: $quizId');
     final response = await _supabase
         .from('quiz_scores')
-        .select(
-            '*, users(first_name,last_name), quizes(title), categories(name)')
+        .select('*, users(name), quizes(title), categories(name)')
         .eq('quiz_id', quizId);
     print('response: $response');
 
@@ -55,8 +54,7 @@ class QuizScoreRepository {
       String userId, String categoryId) async {
     final response = await _supabase
         .from('quiz_scores')
-        .select(
-            '*, users(first_name,last_name), quizes(title), categories(name)')
+        .select('*, users(name), quizes(title), categories(name)')
         .eq('user_id', userId)
         .eq('category_id', categoryId);
 

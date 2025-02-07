@@ -45,6 +45,7 @@ class QuizRows extends DataTableSource {
           Text(quiz.categoryName == null ? '' : quiz.categoryName!),
         ),
         DataCell(Text("${quiz.timer.toString()} min")),
+        DataCell(Text(quiz.noofQuestions.toString())),
         DataCell(Text(quiz.createdAt == null ? '' : quiz.formattedDate)),
         DataCell(
           TTableActionButtons(

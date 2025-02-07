@@ -10,6 +10,7 @@ class QuizModel {
   DateTime? createdAt;
   DateTime? updatedAt;
   String? categoryName; // Fetched from the categories table
+  int noofQuestions;
 
   QuizModel({
     required this.id,
@@ -17,6 +18,7 @@ class QuizModel {
     required this.title,
     required this.description,
     this.timer = 0, // Default timer value is 0
+    this.noofQuestions = 0,
     required this.shareableCode,
     this.createdAt,
     this.updatedAt,
@@ -59,6 +61,7 @@ class QuizModel {
       title: json['title'] ?? '',
       description: json['description'] ?? '',
       timer: json['timer'] ?? 0,
+      noofQuestions: json['no_of_questions'] ?? 0,
       shareableCode: json['shareable_code'] ?? '',
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'])

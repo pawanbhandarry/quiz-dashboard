@@ -59,7 +59,6 @@ class UserInfo extends StatelessWidget {
             ],
           ),
           const SizedBox(height: TSizes.spaceBtwSections),
-
           // Meta Data
           Row(
             children: [
@@ -74,11 +73,11 @@ class UserInfo extends StatelessWidget {
           const SizedBox(height: TSizes.spaceBtwItems),
           Row(
             children: [
-              const SizedBox(width: 120, child: Text('Total Score')),
+              const SizedBox(width: 120, child: Text('Joined Date')),
               const Text(':'),
               const SizedBox(width: TSizes.spaceBtwItems / 2),
               Expanded(
-                  child: Text(user.score.toString(),
+                  child: Text(user.formattedDate,
                       style: Theme.of(context).textTheme.titleMedium)),
             ],
           ),
@@ -94,67 +93,51 @@ class UserInfo extends StatelessWidget {
             ],
           ),
           const SizedBox(height: TSizes.spaceBtwItems),
+          Row(
+            children: [
+              const SizedBox(width: 120, child: Text('Total Score')),
+              const Text(':'),
+              const SizedBox(width: TSizes.spaceBtwItems / 2),
+              Expanded(
+                  child: Text(user.score.toString(),
+                      style: Theme.of(context).textTheme.titleMedium)),
+            ],
+          ),
+
+          const SizedBox(height: TSizes.spaceBtwItems),
 
           // Divider
           const Divider(),
           const SizedBox(height: TSizes.spaceBtwItems),
 
-          // // Additional Details
-          // Row(
-          //   children: [
-          //     Expanded(
-          //       child: Column(
-          //         mainAxisSize: MainAxisSize.min,
-          //         crossAxisAlignment: CrossAxisAlignment.start,
-          //         children: [
-          //           Text('Last Order',
-          //               style: Theme.of(context).textTheme.titleLarge),
-          //           const Text('7 Days Ago, #[36d54]'),
-          //         ],
-          //       ),
-          //     ),
-          //     Expanded(
-          //       child: Column(
-          //         mainAxisSize: MainAxisSize.min,
-          //         crossAxisAlignment: CrossAxisAlignment.start,
-          //         children: [
-          //           Text('Average Order Value',
-          //               style: Theme.of(context).textTheme.titleLarge),
-          //           const Text('\$352'),
-          //         ],
-          //       ),
-          //     ),
-          //   ],
-          // ),
-          // const SizedBox(height: TSizes.spaceBtwItems),
-
           // // Additional Details Cont.
-          // Row(
-          //   children: [
-          //     Expanded(
-          //       child: Column(
-          //         mainAxisSize: MainAxisSize.min,
-          //         crossAxisAlignment: CrossAxisAlignment.start,
-          //         children: [
-          //           Text('Registered',
-          //               style: Theme.of(context).textTheme.titleLarge),
-          //           Text(user.formattedDate),
-          //         ],
-          //       ),
-          //     ),
-          //     Expanded(
-          //       child: Column(
-          //         mainAxisSize: MainAxisSize.min,
-          //         crossAxisAlignment: CrossAxisAlignment.start,
-          //         children: [
-          //           Text('Email Marketing',
-          //               style: Theme.of(context).textTheme.titleLarge),
-          //           const Text('Subscribed'),
-          //         ],
-          //       ),
-          //     ),
-          //   ],
-          // ),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Grade',
+                        style: Theme.of(context).textTheme.titleLarge),
+                    Text(user.grade),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('School',
+                        style: Theme.of(context).textTheme.titleLarge),
+                    Text(user.schoolName),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: TSizes.spaceBtwItems),
         ],
       ),
     );
