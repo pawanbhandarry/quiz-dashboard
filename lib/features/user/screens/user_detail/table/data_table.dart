@@ -37,6 +37,7 @@ class UserScoreTable extends StatelessWidget {
                     controller.sortByScore(columnIndex, ascending);
                   },
                 ),
+                const DataColumn2(label: Text('Incorrect')),
                 DataColumn2(
                   label: Text('Date'),
                   onSort: (columnIndex, ascending) {

@@ -8,10 +8,10 @@ import '../../../controller/user_detail_controller.dart';
 import '../../../models/user_models.dart';
 import '../../../../reports/controller/quiz_score_controller.dart';
 
-class CategoriesPerformance extends StatelessWidget {
+class DetailedCategoryStats extends StatelessWidget {
   final UserModel user;
 
-  const CategoriesPerformance({super.key, required this.user});
+  const DetailedCategoryStats({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -31,13 +31,13 @@ class CategoriesPerformance extends StatelessWidget {
         color: TColors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Padding(
-          padding: EdgeInsets.all(TSizes.defaultSpace),
+          padding: const EdgeInsets.all(TSizes.defaultSpace),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header with gradient
               Container(
-                padding: EdgeInsets.symmetric(
+                padding: const EdgeInsets.symmetric(
                     vertical: TSizes.md, horizontal: TSizes.lg),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -50,9 +50,9 @@ class CategoriesPerformance extends StatelessWidget {
                 child: Row(
                   children: [
                     Icon(Icons.trending_up, color: Colors.white, size: 30),
-                    SizedBox(width: TSizes.sm),
+                    const SizedBox(width: TSizes.sm),
                     Text(
-                      'Category Performance',
+                      'Top Performing Categories',
                       style:
                           Theme.of(context).textTheme.headlineMedium?.copyWith(
                                 color: Colors.white,
@@ -62,7 +62,7 @@ class CategoriesPerformance extends StatelessWidget {
                   ],
                 ),
               ),
-              SizedBox(height: TSizes.lg),
+              const SizedBox(height: TSizes.lg),
 
               // Category Cards
               ...categoryStats.entries.map((entry) {
@@ -71,7 +71,7 @@ class CategoriesPerformance extends StatelessWidget {
                 final passRate = (stats.passCount / stats.totalAttempts) * 100;
 
                 return Container(
-                  margin: EdgeInsets.only(bottom: TSizes.md),
+                  margin: const EdgeInsets.only(bottom: TSizes.md),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(15),
@@ -95,7 +95,7 @@ class CategoriesPerformance extends StatelessWidget {
                           ),
                           child: Icon(Icons.category, color: TColors.primary),
                         ),
-                        SizedBox(width: TSizes.sm),
+                        const SizedBox(width: TSizes.sm),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,7 +141,7 @@ class CategoriesPerformance extends StatelessWidget {
                     ),
                     children: [
                       Padding(
-                        padding: EdgeInsets.all(TSizes.md),
+                        padding: const EdgeInsets.all(TSizes.md),
                         child: Column(
                           children: [
                             // Performance Bar with Animation
@@ -168,7 +168,7 @@ class CategoriesPerformance extends StatelessWidget {
                                                 .labelLarge),
                                       ],
                                     ),
-                                    SizedBox(height: TSizes.xs),
+                                    const SizedBox(height: TSizes.xs),
                                     Stack(
                                       children: [
                                         Container(
@@ -206,79 +206,66 @@ class CategoriesPerformance extends StatelessWidget {
                                 );
                               },
                             ),
-                            SizedBox(height: TSizes.md),
+                            const SizedBox(height: TSizes.md),
 
-                            // Stats Grid with Responsive Layout
-                            LayoutBuilder(
-                              builder: (context, constraints) {
-                                int crossAxisCount = 3;
-                                if (constraints.maxWidth < 600) {
-                                  crossAxisCount = 2; // For small screens
-                                } else if (constraints.maxWidth < 400) {
-                                  crossAxisCount =
-                                      1; // For even smaller screens
-                                }
-
-                                return GridView.count(
-                                  shrinkWrap: true,
-                                  physics: NeverScrollableScrollPhysics(),
-                                  crossAxisCount: crossAxisCount,
-                                  childAspectRatio:
-                                      crossAxisCount == 3 ? 3.2 : 1.5,
-                                  mainAxisSpacing: TSizes.md,
-                                  crossAxisSpacing: TSizes.md,
-                                  children: [
-                                    _buildStatCard(
-                                      context,
-                                      'Highest Score',
-                                      '${stats.highestScore.toStringAsFixed(1)}%',
-                                      TColors.success,
-                                      Icons.emoji_events,
-                                      isRatio: false,
-                                    ),
-                                    _buildStatCard(
-                                      context,
-                                      'Lowest Score',
-                                      '${stats.lowestScore.toStringAsFixed(1)}%',
-                                      TColors.error,
-                                      Icons.trending_down,
-                                      isRatio: false,
-                                    ),
-                                    _buildStatCard(
-                                      context,
-                                      'Avg Score',
-                                      '${stats.averageScore.toStringAsFixed(1)}%',
-                                      TColors.primary,
-                                      Icons.analytics,
-                                      isRatio: false,
-                                    ),
-                                    _buildStatCard(
-                                      context,
-                                      'Pass Rate',
-                                      '${passRate.toStringAsFixed(1)}%',
-                                      TColors.success,
-                                      Icons.check_circle,
-                                      isRatio: false,
-                                    ),
-                                    _buildStatCard(
-                                      context,
-                                      'Passed/Total',
-                                      '${stats.passCount}/${stats.totalAttempts}',
-                                      TColors.textSecondary,
-                                      Icons.bar_chart,
-                                      isRatio: true,
-                                    ),
-                                    _buildStatCard(
-                                      context,
-                                      'Avg Time',
-                                      '${stats.averageTimeTaken.toStringAsFixed(0)}s',
-                                      TColors.warning,
-                                      Icons.timer,
-                                      isRatio: false,
-                                    ),
-                                  ],
-                                );
-                              },
+                            // Stats Grid
+                            GridView.count(
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              crossAxisCount: 3,
+                              childAspectRatio: 3.2, // Made more compact
+                              mainAxisSpacing: TSizes.md, // Reduced spacing
+                              crossAxisSpacing: TSizes.md,
+                              children: [
+                                _buildStatCard(
+                                  context,
+                                  'Highest Score',
+                                  '${stats.highestScore.toStringAsFixed(1)}%',
+                                  TColors.success,
+                                  Icons.emoji_events,
+                                  isRatio: false,
+                                ),
+                                _buildStatCard(
+                                  context,
+                                  'Lowest Score',
+                                  '${stats.lowestScore.toStringAsFixed(1)}%',
+                                  TColors.error,
+                                  Icons.trending_down,
+                                  isRatio: false,
+                                ),
+                                _buildStatCard(
+                                  context,
+                                  'Avg Score',
+                                  '${stats.averageScore.toStringAsFixed(1)}%',
+                                  TColors.primary,
+                                  Icons.analytics,
+                                  isRatio: false,
+                                ),
+                                _buildStatCard(
+                                  context,
+                                  'Pass Rate',
+                                  '${passRate.toStringAsFixed(1)}%',
+                                  TColors.success,
+                                  Icons.check_circle,
+                                  isRatio: false,
+                                ),
+                                _buildStatCard(
+                                  context,
+                                  'Passed/Total',
+                                  '${stats.passCount}/${stats.totalAttempts}',
+                                  TColors.textSecondary,
+                                  Icons.bar_chart,
+                                  isRatio: true,
+                                ),
+                                _buildStatCard(
+                                  context,
+                                  'Avg Time',
+                                  '${stats.averageTimeTaken.toStringAsFixed(0)}s',
+                                  TColors.warning,
+                                  Icons.timer,
+                                  isRatio: false,
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -298,7 +285,7 @@ class CategoriesPerformance extends StatelessWidget {
       Color color, IconData icon,
       {bool isRatio = false}) {
     return Container(
-      padding: EdgeInsets.all(TSizes.xs),
+      padding: const EdgeInsets.all(TSizes.xs),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -314,12 +301,13 @@ class CategoriesPerformance extends StatelessWidget {
           BoxShadow(
             color: color.withOpacity(0.1),
             blurRadius: 10,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Stack(
         children: [
+          // Background Icon (Watermark)
           Positioned(
             right: -10,
             bottom: -10,
@@ -329,12 +317,14 @@ class CategoriesPerformance extends StatelessWidget {
               color: color.withOpacity(0.1),
             ),
           ),
+          // Content
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              // Icon Container
               Container(
-                padding: EdgeInsets.all(TSizes.xs),
+                padding: const EdgeInsets.all(TSizes.xs),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
@@ -342,17 +332,19 @@ class CategoriesPerformance extends StatelessWidget {
                     BoxShadow(
                       color: color.withOpacity(0.2),
                       blurRadius: 8,
-                      offset: Offset(0, 2),
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),
                 child: Icon(icon, color: color, size: 24),
               ),
-              SizedBox(height: TSizes.sm),
+              const SizedBox(height: TSizes.sm),
+
+              // Value with Animation
               Flexible(
                 child: isRatio
                     ? Text(
-                        value,
+                        value, // Direct display for ratio
                         style:
                             Theme.of(context).textTheme.titleMedium?.copyWith(
                                   color: color,
@@ -362,12 +354,13 @@ class CategoriesPerformance extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       )
                     : TweenAnimationBuilder<double>(
-                        duration: Duration(milliseconds: 1500),
+                        duration: const Duration(milliseconds: 1500),
                         tween: Tween<double>(
-                            begin: 0,
-                            end: double.tryParse(
-                                    value.replaceAll(RegExp(r'[^0-9.]'), '')) ??
-                                0),
+                          begin: 0,
+                          end: double.tryParse(
+                                  value.replaceAll(RegExp(r'[^0-9.]'), '')) ??
+                              0,
+                        ),
                         builder: (context, animatedValue, child) {
                           return Text(
                             animatedValue.toStringAsFixed(1) +
@@ -387,9 +380,12 @@ class CategoriesPerformance extends StatelessWidget {
                         },
                       ),
               ),
-              SizedBox(height: TSizes.xs),
+
+              const SizedBox(height: TSizes.xs),
+
+              // Label
               Container(
-                padding: EdgeInsets.symmetric(
+                padding: const EdgeInsets.symmetric(
                   horizontal: TSizes.sm,
                   vertical: TSizes.xs,
                 ),

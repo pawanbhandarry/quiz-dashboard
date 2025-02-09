@@ -66,7 +66,7 @@ class AdminController extends GetxController {
       if (pickedFile != null) {
         // Upload image to Supabase storage
         final uploadedUrl =
-            await storageService.uploadImageFile('admins_profile', pickedFile);
+            await storageService.uploadImageFile('admin_profiles', pickedFile);
         print(uploadedUrl);
 
         // Update user profile in Supabase

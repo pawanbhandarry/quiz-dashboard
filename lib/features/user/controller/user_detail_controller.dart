@@ -52,7 +52,7 @@ class UserDetailController extends GetxController {
       overallScore: overallScore,
       accuracy: accuracy,
       averageTimeTaken: averageTimeTaken,
-      topPerformingCategory: _findTopPerformingCategory(scores),
+      topPerformingCategory: findTopPerformingCategory(scores),
       improvementNeededCategories: _findImprovementNeededCategories(scores),
       topPerformingQuiz: _findTopPerformingQuiz(scores),
       incorrectRate: incorrectRate,
@@ -67,7 +67,7 @@ class UserDetailController extends GetxController {
         (a, b) => (a.score / a.totalScore) > (b.score / b.totalScore) ? a : b);
   }
 
-  String _findTopPerformingCategory(List<QuizScoreModel> scores) {
+  String findTopPerformingCategory(List<QuizScoreModel> scores) {
     final categoryPerformance = <String, double>{};
 
     for (var score in scores) {
@@ -88,19 +88,6 @@ class UserDetailController extends GetxController {
         .where((score) => (score.score / score.totalScore) * 100 < 50)
         .map((score) => score.categoryName ?? 'Uncategorized')
         .toList();
-  }
-
-  double _calculateCategoryAverage(
-      String category, List<QuizScoreModel> scores) {
-    final categoryScores = scores.where((s) => s.categoryName == category);
-    if (categoryScores.isEmpty) return 0;
-    return (categoryScores.fold(0, (sum, s) => sum + s.score) /
-            categoryScores.fold(0, (sum, s) => sum + s.totalScore)) *
-        100;
-  }
-
-  int _countCategoryAttempts(String category, List<QuizScoreModel> scores) {
-    return scores.where((s) => s.categoryName == category).length;
   }
 
   Map<String, CategoryStats> calculateDetailedCategoryStats(
@@ -141,6 +128,15 @@ class UserDetailController extends GetxController {
       );
     });
 
-    return categoryMap;
+    // Sort by average score in descending order
+    final sortedCategoryList = categoryMap.entries.toList()
+      ..sort((a, b) => b.value.averageScore.compareTo(a.value.averageScore));
+
+    // Return the sorted map
+    return Map.fromEntries(sortedCategoryList);
+  }
+
+  Map<String, CategoryStats> getCategoryStats(List<QuizScoreModel> scores) {
+    return calculateDetailedCategoryStats(scores);
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../data/services/cloud_storage/supabase_storage_service.dart';
 import '../../../utils/helpers/network_manager.dart';
 import '../../../utils/popups/full_screen_loader.dart';
 import '../../../utils/popups/loaders.dart';
@@ -41,9 +42,27 @@ class CreateQuestionController extends GetxController {
   Future<void> pickImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
     if (image != null) {
-      imageUrlController.text =
-          image.path; // Save the image path in the controller
+      try {
+        // Show loader if needed
+        TFullScreenLoader.popUpCircular();
+
+        // Upload image to Supabase Storage
+        final String imageUrl =
+            await TSupabaseStorageService.instance.uploadImageFile(
+          'questions', // Bucket name
+          image,
+        );
+
+        // Store the public URL in the controller
+        imageUrlController.text = imageUrl;
+
+        TFullScreenLoader.stopLoading();
+      } catch (e) {
+        TFullScreenLoader.stopLoading();
+        TLoaders.errorSnackBar(title: 'Upload Failed', message: e.toString());
+      }
     }
   }
 

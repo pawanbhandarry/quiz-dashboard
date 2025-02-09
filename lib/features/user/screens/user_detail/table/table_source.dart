@@ -16,6 +16,7 @@ class UserScoreRows extends DataTableSource {
         DataCell(Text(score.quizTitle ?? 'Unknown Quiz')),
         DataCell(
             Text('${score.score.toString()}/${score.totalScore.toString()}')),
+        DataCell(Text(score.incorrectAnswers.toString())),
         DataCell(Text(score.formattedDate)),
         DataCell(
           Row(
