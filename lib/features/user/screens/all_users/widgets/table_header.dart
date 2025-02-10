@@ -22,10 +22,8 @@ class UserTableHeader extends StatelessWidget {
           child: Row(
             children: [
               SizedBox(
-                  width: 200,
-                  child: ElevatedButton(
-                      onPressed: () => Get.toNamed(TRoutes.addQuestion),
-                      child: const Text('Add User'))),
+                width: 200,
+              ),
             ],
           ),
         ),
