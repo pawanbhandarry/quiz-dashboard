@@ -65,7 +65,7 @@ class LeaderboardWidget extends StatelessWidget {
             ),
             const SizedBox(height: TSizes.spaceBtwSections),
             // Top 3 Section
-            if (controller.topUsers.length >= 2)
+            if (controller.topUsers.length >= 3)
               SizedBox(
                 height: 200,
                 child: Stack(
@@ -90,12 +90,12 @@ class LeaderboardWidget extends StatelessWidget {
                             Colors.amber,
                             '1',
                           ),
-                          // _buildPodiumItem(
-                          //   controller.topUsers[2],
-                          //   120.0,
-                          //   Colors.brown[300]!,
-                          //   '3',
-                          // ),
+                          _buildPodiumItem(
+                            controller.topUsers[2],
+                            120.0,
+                            Colors.brown[300]!,
+                            '3',
+                          ),
                         ],
                       ),
                     ),
