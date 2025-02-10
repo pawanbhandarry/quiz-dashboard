@@ -36,7 +36,7 @@ class CreateQuizForm extends StatelessWidget {
             TextFormField(
               controller: createController.title,
               validator: (value) =>
-                  TValidator.validateEmptyText('Quiz Title', value),
+                  TValidator.validateWithCharacterLimit('Quiz Title', value),
               decoration: const InputDecoration(
                 labelText: 'Quiz Title',
                 prefixIcon: Icon(Iconsax.book),
@@ -48,7 +48,7 @@ class CreateQuizForm extends StatelessWidget {
             TextFormField(
               controller: createController.description,
               validator: (value) =>
-                  TValidator.validateEmptyText('Description', value),
+                  TValidator.validateWithCharacterLimit('Description', value),
               decoration: const InputDecoration(
                 labelText: 'Description',
                 prefixIcon: Icon(Iconsax.clipboard_text),
@@ -83,8 +83,8 @@ class CreateQuizForm extends StatelessWidget {
             // Timer Field
             TextFormField(
               controller: createController.timer,
-              // validator: (value) =>
-              //     TValidator.validateNumeric('Timer (minutes)', value),
+              validator: (value) =>
+                  TValidator.validateNumeric('Timer (minutes)', value),
               decoration: const InputDecoration(
                 labelText: 'Timer (minutes)',
                 prefixIcon: Icon(Iconsax.timer),

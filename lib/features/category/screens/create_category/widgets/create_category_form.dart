@@ -37,16 +37,18 @@ class CreateCategoryForm extends StatelessWidget {
             // Name Text Field
             TextFormField(
               controller: createController.name,
-              validator: (value) => TValidator.validateEmptyText('Name', value),
+              validator: (value) =>
+                  TValidator.validateWithCharacterLimit('Name', value),
               decoration: const InputDecoration(
                   labelText: 'Category Name',
                   prefixIcon: Icon(Iconsax.category)),
             ),
             const SizedBox(height: TSizes.spaceBtwInputFields),
-            // Name Text Field
+            // Description Text Field
             TextFormField(
               controller: createController.description,
-              validator: (value) => TValidator.validateEmptyText('Name', value),
+              validator: (value) =>
+                  TValidator.validateWithCharacterLimit('Description', value),
               decoration: const InputDecoration(
                   labelText: 'Description', prefixIcon: Icon(Iconsax.message)),
             ),

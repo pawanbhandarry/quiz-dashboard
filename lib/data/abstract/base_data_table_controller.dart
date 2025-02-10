@@ -9,12 +9,17 @@ import '../../utils/popups/loaders.dart';
 /// This class provides common functionalities for handling data tables, including fetching, updating, and deleting items.
 abstract class TBaseController<T> extends GetxController {
   RxBool isLoading = true.obs; // Observables for managing loading state
-  RxInt sortColumnIndex = 1.obs; // Observable for tracking the index of the column for sorting
-  RxBool sortAscending = true.obs; // Observable for tracking the sorting order (ascending or descending)
+  RxInt sortColumnIndex =
+      1.obs; // Observable for tracking the index of the column for sorting
+  RxBool sortAscending = true
+      .obs; // Observable for tracking the sorting order (ascending or descending)
   RxList<T> allItems = <T>[].obs; // Observable list to store all items
-  RxList<T> filteredItems = <T>[].obs; // Observable list to store filtered items
-  RxList<bool> selectedRows = <bool>[].obs; // Observable list to store selected rows
-  final searchTextController = TextEditingController(); // Controller for handling search text input
+  RxList<T> filteredItems =
+      <T>[].obs; // Observable list to store filtered items
+  RxList<bool> selectedRows =
+      <bool>[].obs; // Observable list to store selected rows
+  final searchTextController =
+      TextEditingController(); // Controller for handling search text input
 
   @override
   void onInit() {
@@ -37,15 +42,20 @@ abstract class TBaseController<T> extends GetxController {
       isLoading.value = true; // Set loading state to true
       List<T> fetchedItems = [];
       if (allItems.isEmpty) {
-        fetchedItems = await fetchItems(); // Fetch items (to be implemented in subclasses)
+        fetchedItems =
+            await fetchItems(); // Fetch items (to be implemented in subclasses)
       }
-      allItems.assignAll(fetchedItems); // Assign fetched items to the allItems list
-      filteredItems.assignAll(allItems); // Initially, set filtered items to all items
-      selectedRows.assignAll(List.generate(allItems.length, (index) => false)); // Initialize selected rows
+      allItems
+          .assignAll(fetchedItems); // Assign fetched items to the allItems list
+      filteredItems
+          .assignAll(allItems); // Initially, set filtered items to all items
+      selectedRows.assignAll(List.generate(
+          allItems.length, (index) => false)); // Initialize selected rows
     } catch (e) {
       // Handle error (to be implemented in subclasses)
     } finally {
-      isLoading.value = false; // Set loading state to false, regardless of success or failure
+      isLoading.value =
+          false; // Set loading state to false, regardless of success or failure
     }
   }
 
@@ -60,7 +70,8 @@ abstract class TBaseController<T> extends GetxController {
   }
 
   /// Common method for sorting items by a property
-  void sortByProperty(int sortColumnIndex, bool ascending, Function(T) property) {
+  void sortByProperty(
+      int sortColumnIndex, bool ascending, Function(T) property) {
     sortAscending.value = ascending;
     filteredItems.sort((a, b) {
       if (ascending) {
@@ -78,7 +89,8 @@ abstract class TBaseController<T> extends GetxController {
   void addItemToLists(T item) {
     allItems.add(item);
     filteredItems.add(item);
-    selectedRows.assignAll(List.generate(allItems.length, (index) => false)); // Initialize selected rows
+    selectedRows.assignAll(List.generate(
+        allItems.length, (index) => false)); // Initialize selected rows
     allItems.refresh(); // Refresh the UI to reflect the changes
   }
 
@@ -97,7 +109,8 @@ abstract class TBaseController<T> extends GetxController {
   void removeItemFromLists(T item) {
     allItems.remove(item);
     filteredItems.remove(item);
-    selectedRows.assignAll(List.generate(allItems.length, (index) => false)); // Initialize selected rows
+    selectedRows.assignAll(List.generate(
+        allItems.length, (index) => false)); // Initialize selected rows
 
     update(); // Trigger UI update
   }
@@ -114,8 +127,10 @@ abstract class TBaseController<T> extends GetxController {
           child: ElevatedButton(
             onPressed: () async => await deleteOnConfirm(item),
             style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: TSizes.buttonHeight / 2),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(TSizes.buttonRadius * 5)),
+              padding:
+                  const EdgeInsets.symmetric(vertical: TSizes.buttonHeight / 2),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(TSizes.buttonRadius * 5)),
             ),
             child: const Text('Ok'),
           ),
@@ -125,8 +140,10 @@ abstract class TBaseController<T> extends GetxController {
           child: OutlinedButton(
             onPressed: () => Get.back(),
             style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: TSizes.buttonHeight / 2),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(TSizes.buttonRadius * 5)),
+              padding:
+                  const EdgeInsets.symmetric(vertical: TSizes.buttonHeight / 2),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(TSizes.buttonRadius * 5)),
             ),
             child: const Text('Cancel'),
           ),
@@ -154,7 +171,74 @@ abstract class TBaseController<T> extends GetxController {
       update();
 
       TFullScreenLoader.stopLoading();
-      TLoaders.successSnackBar(title: 'Item Deleted', message: 'Your Item has been Deleted');
+      TLoaders.successSnackBar(
+          title: 'Item Deleted', message: 'Your Item has been Deleted');
+    } catch (e) {
+      TFullScreenLoader.stopLoading();
+      TLoaders.errorSnackBar(title: 'Oh Snap!', message: e.toString());
+    }
+  }
+
+  /// Method for bulk deleting items
+  Future<void> bulkDeleteItems(List<T> items) async {
+    try {
+      // Show a confirmation dialog
+      Get.defaultDialog(
+        title: 'Bulk Delete',
+        content: Text('Are you sure you want to delete ${items.length} items?'),
+        confirm: SizedBox(
+          width: 60,
+          child: ElevatedButton(
+            onPressed: () async => await performBulkDelete(items),
+            style: OutlinedButton.styleFrom(
+              padding:
+                  const EdgeInsets.symmetric(vertical: TSizes.buttonHeight / 2),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(TSizes.buttonRadius * 5)),
+            ),
+            child: const Text('Ok'),
+          ),
+        ),
+        cancel: SizedBox(
+          width: 80,
+          child: OutlinedButton(
+            onPressed: () => Get.back(),
+            style: OutlinedButton.styleFrom(
+              padding:
+                  const EdgeInsets.symmetric(vertical: TSizes.buttonHeight / 2),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(TSizes.buttonRadius * 5)),
+            ),
+            child: const Text('Cancel'),
+          ),
+        ),
+      );
+    } catch (e) {
+      TLoaders.errorSnackBar(title: 'Oh Snap!', message: e.toString());
+    }
+  }
+
+  /// Perform actual bulk deletion
+  Future<void> performBulkDelete(List<T> items) async {
+    try {
+      // Remove the Confirmation Dialog
+      TFullScreenLoader.stopLoading();
+
+      // Start the loader
+      TFullScreenLoader.popUpCircular();
+
+      // Delete each item
+      for (var item in items) {
+        await deleteItem(item);
+        removeItemFromLists(item);
+      }
+
+      update();
+
+      TFullScreenLoader.stopLoading();
+      TLoaders.successSnackBar(
+          title: 'Items Deleted',
+          message: '${items.length} items have been deleted');
     } catch (e) {
       TFullScreenLoader.stopLoading();
       TLoaders.errorSnackBar(title: 'Oh Snap!', message: e.toString());

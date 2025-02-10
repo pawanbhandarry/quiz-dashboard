@@ -155,4 +155,19 @@ class QuestionRepository extends GetxController {
       throw 'Something went wrong. Please try again';
     }
   }
+
+  Future<void> bulkDeleteQuestions(List<String> questionIds) async {
+    try {
+      _checkAuth();
+
+      // Perform bulk delete operation
+      await _supabase.from(_tableName).delete().filter('id', 'in', questionIds);
+    } on PostgrestException catch (e) {
+      print('Postgrest Error: ${e.message}');
+      throw 'Database error: ${e.message}';
+    } catch (e) {
+      print('Unexpected error: $e');
+      throw 'Something went wrong. Please try again';
+    }
+  }
 }

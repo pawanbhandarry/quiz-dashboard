@@ -39,7 +39,8 @@ class EditCategoryForm extends StatelessWidget {
             // Name Text Field
             TextFormField(
               controller: editController.name,
-              validator: (value) => TValidator.validateEmptyText('Name', value),
+              validator: (value) =>
+                  TValidator.validateWithCharacterLimit('Name', value),
               decoration: const InputDecoration(
                   labelText: 'Category Name',
                   prefixIcon: Icon(Iconsax.category)),
@@ -48,7 +49,8 @@ class EditCategoryForm extends StatelessWidget {
             // Name Text Field
             TextFormField(
               controller: editController.description,
-              validator: (value) => TValidator.validateEmptyText('Name', value),
+              validator: (value) =>
+                  TValidator.validateWithCharacterLimit('Description', value),
               decoration: const InputDecoration(
                   labelText: 'Description', prefixIcon: Icon(Iconsax.message)),
             ),

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 /// VALIDATION CLASS
 class TValidator {
   /// Empty Text Validation
@@ -107,6 +109,41 @@ class TValidator {
     if (double.tryParse(value) == null) {
       return '$fieldName must be a valid number.';
     }
+    return null;
+  }
+
+  bool isValidImageUrl(String url) {
+    if (url.isEmpty) return true; // Allow empty URLs
+
+    // Regex pattern for validating image URLs
+    final urlPattern = RegExp(
+      r'^(https?:\/\/)?' // Optional protocol
+      r'([a-z0-9-]+\.)+[a-z]{2,}' // Domain
+      r'(\/[\w\-\.\/\?%&=]*)?(' // Optional path
+      r'\.jpg|\.(jpeg)|\.(png)|\.(gif)|\.(bmp)|\.(webp))$', // Image extensions
+      caseSensitive: false,
+    );
+
+    return urlPattern.hasMatch(url);
+  }
+
+  // Validator for image URL form field
+  String? validateImageUrl(String? value) {
+    if (value != null && value.isNotEmpty && !isValidImageUrl(value)) {
+      return 'Please enter a valid image URL (jpg, jpeg, png, gif, bmp, webp)';
+    }
+    return null;
+  }
+
+  // Function to validate URL character limit
+  static String? validateWithCharacterLimit(String? fieldName, String? value,
+      {int maxLength = 250}) {
+    if (value == null || value.isEmpty) {
+      return '$fieldName is required.';
+    } else if (value.length > maxLength) {
+      return '$fieldName must not exceed $maxLength characters.';
+    }
+
     return null;
   }
 // Add more custom validators as needed for your specific requirements.

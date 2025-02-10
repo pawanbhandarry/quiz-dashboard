@@ -7,6 +7,7 @@ import '../../../data/services/cloud_storage/supabase_storage_service.dart';
 import '../../../utils/helpers/network_manager.dart';
 import '../../../utils/popups/full_screen_loader.dart';
 import '../../../utils/popups/loaders.dart';
+import '../../../utils/validators/validation.dart';
 import '../../quizes/controller/quiz_controller.dart';
 import '../../quizes/models/quizes_models.dart';
 import '../models/question_models.dart';
@@ -123,6 +124,15 @@ class EditQuestionController extends GetxController {
             message: 'Please check your internet connection and try again.');
         return;
       }
+      if (imageUrlController.text.trim().isNotEmpty) {
+        if (!TValidator().isValidImageUrl(imageUrlController.text)) {
+          TFullScreenLoader.stopLoading();
+          TLoaders.errorSnackBar(
+              title: 'Invalid URL', message: 'Please enter a valid image URL');
+          return;
+        }
+      }
+
       // Form Validation
       if (!formKey.currentState!.validate()) {
         TFullScreenLoader.stopLoading();

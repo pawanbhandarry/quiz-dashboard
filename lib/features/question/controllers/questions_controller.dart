@@ -30,4 +30,17 @@ class QuestionController extends TBaseController<QuestionModel> {
     sortByProperty(sortColumnIndex, ascending,
         (QuestionModel question) => question.question.toLowerCase());
   }
+
+  /// Method to delete multiple questions at once
+  Future<void> bulkDeleteQuestions(List<QuestionModel> items) async {
+    try {
+      // Extract question IDs
+      final questionIds = items.map((item) => item.id).toList();
+      // Call repository method for bulk deletion
+      await _questionRepository.bulkDeleteQuestions(questionIds);
+    } catch (e) {
+      print('Bulk delete error: $e');
+      rethrow;
+    }
+  }
 }
