@@ -17,16 +17,6 @@ class UserTableHeader extends StatelessWidget {
     final controller = Get.put(UserController());
     return Row(
       children: [
-        Expanded(
-          flex: !TDeviceUtils.isDesktopScreen(context) ? 1 : 3,
-          child: Row(
-            children: [
-              SizedBox(
-                width: 200,
-              ),
-            ],
-          ),
-        ),
         // Search Field
         Expanded(
           flex: TDeviceUtils.isDesktopScreen(context) ? 2 : 1,
